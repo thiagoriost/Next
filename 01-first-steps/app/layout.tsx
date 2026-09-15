@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+
+// @ts-expect-error
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -13,7 +15,7 @@ export default function RootLayout({children,}: {children: React.ReactNode}) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <h2>Hello again</h2>
+        <h2>Hello again from root layout</h2>
         {children}
       </body>
     </html>
@@ -21,7 +23,6 @@ export default function RootLayout({children,}: {children: React.ReactNode}) {
 }
 
 
-// video 15, metatags
 
 
 

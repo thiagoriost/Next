@@ -1,4 +1,4 @@
-import { Metadata } from "next"
+import type{ Metadata } from "next"
 
 export const metadata: Metadata = {
   title:'SEO Title',
@@ -9,9 +9,8 @@ export const metadata: Metadata = {
 export default function AboutPage(){
   return (
     
-    <span className="text-7xl"> About page</span>
+    <span className="text-7xl"> About pagee</span>
   )
 }
 
 
-// QUEDE EN VIDEO 20 "pENSEMOS EN SERVER COMPONENT"

@@ -17,11 +17,9 @@ const navItems = [
     {path:'/contact', text: 'Contact'}
 ]
 
-export const Navbar = async () => {
+export const Navbar = () => {
     console.log("Nabvar");
-    if (await temporalAsync()) {
-        console.log("Nabvarrrrrrr");        
-    }
+    
   return (
     <nav className='flex bg-blue-800 bg-opacity-30 p-2 m-2 rounded'>
         <Link href={'/'} className="flex items-center">

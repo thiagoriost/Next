@@ -9,8 +9,8 @@ export default function GlobalLayout({
     <>
       <Navbar />
       <main className="flex flex-col items-center p-24">
-      <span className="text-lg"> HELLO HELLO</span>
-      {children}
+        <span className="text-lg"> HELLO HELLO</span>
+        {children}
       </main>
     </>
   );
