@@ -15,8 +15,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={inter.className} suppressHydrationWarning={true}>{children}</body>
-    </html>
+      <html lang="es">
+        <body className={inter.className} suppressHydrationWarning={true}>
+          <p>Persistent content main layout</p>
+          {children}
+          <p>Persistent content ends</p>
+        </body>
+      </html>
   );
 }

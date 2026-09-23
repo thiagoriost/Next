@@ -12,6 +12,7 @@ interface Props {
 
 export const ActiveLink = ({path, text}:Props) => {
     const pathName = usePathname(); // por este hook es q se utiliza  el client component 'use client'
+    // console.log({pathName});
 
   return (
     <Link className={ `${style.link} ${(pathName === path) && style['active-link']}`}

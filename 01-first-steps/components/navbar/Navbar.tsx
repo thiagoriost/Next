@@ -30,7 +30,7 @@ export const Navbar = () => {
         <div className='flex flex-1'></div>
 
         {
-            navItems.map(ni => <ActiveLink  key={ni.text} {...ni} />)
+            navItems.map(navItem => <ActiveLink  key={navItem.text} {...navItem} />)
         }
         
         {/* <Link className='mr-2' href="/pricing">Pricing</Link>
