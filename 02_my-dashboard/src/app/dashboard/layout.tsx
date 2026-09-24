@@ -8,7 +8,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           
             <Sidebar />
   
-            <div className="p-2  text-slate-900 w-full">
+            <div className="  text-slate-900 w-full">
                 {children}
             </div>
   
