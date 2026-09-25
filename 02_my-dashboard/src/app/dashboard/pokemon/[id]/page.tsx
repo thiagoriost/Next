@@ -8,6 +8,16 @@ import { notFound } from "next/navigation";
 interface Props{
   params:{id:string}
 }
+
+// know generacion estatica revalidacion
+
+// el siguiente metodo solo se ejecuta en tiempo de ejecusion osea on build time para realizar de forma automatica las 151 peticiones y las guarda por adelantado en cache
+export async function generateStaticParams() {
+  const static151Pokemons = Array.from({length:151}).map((v,i)=> `${i+1}`)
+  return static151Pokemons.map(id => ({id}))
+}
+
+
 /* 
 export const metadata={
   title:'SEO rr',
@@ -38,7 +48,10 @@ async function getPokemon(id:string): Promise<Pokemon>  {
   
     console.log("Rigo",{id})
     const pokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`, {
-      cache: "force-cache"
+      cache: "force-cache",
+      next:{
+        revalidate: 60*60*30*6 // 6 horas 
+      }
     }).then(resp=>resp.json())
   
     debugger
