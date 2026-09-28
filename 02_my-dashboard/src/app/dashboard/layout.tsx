@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Sidebar } from "../../components/Sidebar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode; }) {
@@ -9,7 +10,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Sidebar />
   
             <div className="  text-slate-900 w-full">
-                {children}
+                <Suspense fallback={<p className="text-3xl text-slate-900">Loading...</p>}>
+                  {children}
+                </Suspense>
             </div>
   
         </div>
