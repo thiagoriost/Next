@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+import { Providers } from "@/store/Providers";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -18,7 +20,9 @@ export default function RootLayout({
       <html lang="es">
         <body className={inter.className} suppressHydrationWarning={true}>
           <p>Persistent content main layout</p>
-          {children}
+          <Providers>
+            {children}
+          </Providers>
           <p>Persistent content ends</p>
         </body>
       </html>
