@@ -12,8 +12,6 @@ export const PokemonGrid = ({pokemos}:Props) => {
         {
           pokemos.map(({id, name}) => (
             <PokemonCard key={id} id={id} name={name} />
-            
-
           ))
         }
       </div>

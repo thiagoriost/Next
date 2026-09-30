@@ -1,10 +1,31 @@
+'use client'
 import Link from "next/link";
 import Image from "next/image";
 
 import { SimplePokemon } from "../interfaces/simple-pokemon";
+import { IoHeart, IoHeartOutline } from "react-icons/io5";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { toggleFavorite } from "@/store/pokemons/pokemonsSlice";
 
-
+/**
+ * Renders a card for a Pokémon with favorite toggle functionality.
+ * @param param0 
+ * @returns 
+ */
 export const PokemonCard = ({id, name}:SimplePokemon) => {
+
+  const isFavorito = useAppSelector((state) => state.pokemonsReducer[id]); // Check if the Pokémon is in the favorites list
+  const dispatch = useAppDispatch(); // 
+
+  if (isFavorito) {
+    console.log({isFavorito})
+  }
+
+  const handleToggleFavorite = () => {
+    console.log("handleToggleFavorite", {id,name})
+    dispatch(toggleFavorite({ id, name }));
+  }
+
   return (
     <div className="mx-auto right-0 mt-2 w-60">
       <div className="bg-white rounded overflow-hidden shadow-lg">
@@ -53,10 +74,9 @@ export const PokemonCard = ({id, name}:SimplePokemon) => {
           </div>
         </div>
         <div className="border-b px-4 py-2 hover:bg-gray-100 flex">
-          <Link href={`pokemon/${id}`}>
            
-              <div className="text-green-600">
-                <svg
+              <div className="text-red-600 cursor-pointer" onClick={handleToggleFavorite}>
+                {/* <svg
                   fill="none"
                   stroke="currentColor"
                   strokeLinecap="round"
@@ -64,10 +84,16 @@ export const PokemonCard = ({id, name}:SimplePokemon) => {
                   strokeWidth="1"
                   viewBox="0 0 24 24"
                   className="w-5 h-5"
-                >
+                  >
                   <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
+                  </svg> */}
+                {
+                  isFavorito
+                    ? ( <IoHeart className="w-5 h-5" /> )
+                    : ( <IoHeartOutline className="w-5 h-5" /> )
+                }
               </div>
+            <Link href={`pokemon/${id}`}>
               <div className="pl-3">
                 <p className="text-sm font-medium text-gray-800 leading-none">
                   Campaigns

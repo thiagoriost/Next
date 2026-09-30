@@ -7,6 +7,7 @@ interface Propiedades{
     value?: number;
 }
 
+
 export const CartCounter = ({value = 0 }:Propiedades) => {
 
   //const [contador, setContador] = useState(value)
