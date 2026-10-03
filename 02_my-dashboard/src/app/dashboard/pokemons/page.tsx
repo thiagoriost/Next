@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 }
 
 export default async function PokemonsPage() {
-  'use cache'; // Esto es para que nextjs sepa que esta pagina es estatica y no se vuelva a generar
+  // 'use cache'; // Esto es para que nextjs sepa que esta pagina es estatica y no se vuelva a generar
 
   const pokemons:SimplePokemon[] = await getPokemons(151);
   // console.log({pokemons})

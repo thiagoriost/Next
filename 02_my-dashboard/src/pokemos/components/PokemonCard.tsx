@@ -17,6 +17,10 @@ export const PokemonCard = ({id, name}:SimplePokemon) => {
   const isFavorito = useAppSelector((state) => state.pokemonsReducer[id]); // Check if the Pokémon is in the favorites list
   const dispatch = useAppDispatch(); // 
 
+  // get favorite pokemons from localStorage
+  /* const favoritePokemons = JSON.parse(localStorage.getItem(`favorite-pokemons`) || '[]');
+  console.log(`favoritePokemons`, {favoritePokemons}) */
+
   if (isFavorito) {
     console.log({isFavorito})
   }
@@ -24,6 +28,10 @@ export const PokemonCard = ({id, name}:SimplePokemon) => {
   const handleToggleFavorite = () => {
     console.log("handleToggleFavorite", {id,name})
     dispatch(toggleFavorite({ id, name }));
+    // store fa vorite pokemons in localStorage
+    /* const favoritePokemons = JSON.parse(localStorage.getItem(`favorite-pokemons`) || '[]');
+    favoritePokemons.push({ id, name });
+    localStorage.setItem(`favorite-pokemons`, JSON.stringify(favoritePokemons)); */
   }
 
   return (
