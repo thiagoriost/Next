@@ -10,8 +10,8 @@ export const PokemonGrid = ({pokemos}:Props) => {
   return (
     <div className="flex flex-wrap gap-10 items-center justify-center" >
         {
-          pokemos.map(({id, name}) => (
-            <PokemonCard key={id} id={id} name={name} />
+          pokemos.map(({id, name}, index) => (
+            <PokemonCard key={index} id={id} name={name} />
           ))
         }
       </div>

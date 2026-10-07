@@ -13,7 +13,7 @@ export const store = configureStore({
     counterReducer,
     pokemonsReducer
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(localStorageMiddleware)
+  // middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(localStorageMiddleware)
 })
 
 // Infer the `RootState`, `AppDispatch`, and `AppStore` types from the store itself

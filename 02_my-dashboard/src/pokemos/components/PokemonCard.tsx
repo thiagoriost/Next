@@ -14,7 +14,7 @@ import { toggleFavorite } from "@/store/pokemons/pokemonsSlice";
  */
 export const PokemonCard = ({id, name}:SimplePokemon) => {
 
-  const isFavorito = useAppSelector((state) => state.pokemonsReducer[id]); // Check if the Pokémon is in the favorites list
+  const isFavorito = useAppSelector((state) => state.pokemonsReducer.favorites[id]); // Check if the Pokémon is in the favorites list
   const dispatch = useAppDispatch(); // 
 
   // get favorite pokemons from localStorage
@@ -35,7 +35,7 @@ export const PokemonCard = ({id, name}:SimplePokemon) => {
   }
 
   return (
-    <div className="mx-auto right-0 mt-2 w-60">
+    <div className="mx-auto right-0 mt-2 w-60" key={id}>
       <div className="bg-white rounded overflow-hidden shadow-lg">
         {/* <div 
               key={id}
@@ -67,7 +67,7 @@ export const PokemonCard = ({id, name}:SimplePokemon) => {
           </svg> */}
           <Image
             src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${id}.svg`}
-            alt={name}
+            alt={name||''}
             width={100}
             height={100}
             priority={false}

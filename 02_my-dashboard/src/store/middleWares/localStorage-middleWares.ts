@@ -1,23 +1,17 @@
-// https://redux.js.org/toolkit/api/getDefaultMiddleware
+import { isAction, type Middleware } from 'redux'
 
-import {Action, Dispatch, MiddlewareAPI } from "@reduxjs/toolkit";
-import { RootState } from "..";
+export const localStorageMiddleware: Middleware = (store) => (next) => (action) => {
+    const result = next(action)
+    console.log('localStorageMiddleware', {
+      getState: store.getState(),
+      store,
+      action
+    })
 
-export const localStorageMiddleware = (state: MiddlewareAPI) => {
-  
-    return (next: Dispatch) => (action: Action) => {
-        
-        next(action);
-        console.log("localStorageMiddleware",{getState: state.getState(), state, action});
-
-        if (action.type === 'pokemons/toggleFavorite') {
-            const {pokemonsReducer } = state.getState() as RootState;
-            localStorage.setItem('favorite-pokemons', JSON.stringify(pokemonsReducer));
-            
-        }
-
-        /* const result = next(action);
-        localStorage.setItem('state', JSON.stringify(state.getState()));
-        return result; */
+    if (isAction(action) && action.type === 'pokemons/toggleFavorite') {
+      const { pokemonsReducer } = store.getState()
+      localStorage.setItem('favorite-pokemons', JSON.stringify(pokemonsReducer))
     }
-}
+
+    return result
+  }
