@@ -38,3 +38,7 @@ next-env.d.ts
 /03_admin-todos/node_modules
 /03_admin-todos/.next/dev
 /03_admin-todos/postgres_data
+/03_admin-todos/.cursor
+/03_admin-todos/.devin
+/03_admin-todos/.claude
+/03_admin-todos/.agents
