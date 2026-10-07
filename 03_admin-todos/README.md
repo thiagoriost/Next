@@ -30,3 +30,5 @@ docker compose up -d
 
 # Prisma commands
 npx prisma init
+npx prisma migrate dev_migrate # actualiza los modelos en la DB
+npx prisma generate # genera el cliente de prisma con el que se manipula la DB
