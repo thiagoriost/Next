@@ -37,3 +37,4 @@ next-env.d.ts
 #03_admin-todos/node_modules/eslint-plugin-react/lib/rules/jsx-no-literals.js
 /03_admin-todos/node_modules
 /03_admin-todos/.next/dev
+/03_admin-todos/postgres_data
