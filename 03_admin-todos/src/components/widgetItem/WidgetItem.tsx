@@ -11,7 +11,7 @@ export const WidgetItem = () => {
           <div className="mt-2 flex justify-center gap-4">
             <h3 className="text-3xl font-bold text-gray-700">$23,988</h3>
             <div className="flex items-end gap-1 text-green-500">
-              <svg
+              {/* <svg
                 className="w-3"
                 viewBox="0 0 12 15"
                 fill="none"
@@ -21,7 +21,7 @@ export const WidgetItem = () => {
                   d="M6.00001 0L12 8H-3.05176e-05L6.00001 0Z"
                   fill="currentColor"
                 />
-              </svg>
+              </svg> */}
               <span>2%</span>
             </div>
           </div>
