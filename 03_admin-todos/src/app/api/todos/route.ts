@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from 'next/server'
 import * as yup from 'yup';
 
 export async function GET(request: Request) { 
-
+    console.log("get route todos 11")
     /* get take */
     const { searchParams } = new URL(request.url);
     const take = parseInt(searchParams.get('take') || '10');
@@ -28,6 +28,8 @@ const postSchema = yup.object({
     completed: yup.boolean().optional().default(false),
 });
 export async function POST(request: Request) {
+    console.log("POST route todos 22")
+
     const body = await request.json();
 
     try {

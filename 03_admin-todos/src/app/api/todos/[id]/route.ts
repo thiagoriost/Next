@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import * as yup from 'yup';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    console.log("get route todos[id] 33")
+
     const segments = await params;
     
     console.log({url: request.url})
@@ -30,6 +32,8 @@ const patchSchema = yup.object({
     completed: yup.boolean().optional(),
 });
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    console.log("PUT route todos[id] 44")
+
     const body = await request.json();
 
     try {

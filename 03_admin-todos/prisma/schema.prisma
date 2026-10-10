@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -9,12 +7,11 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model Todo {
-  id        String   @id @default(uuid())
+  id          String   @id @default(uuid())
   description String
-  title     String
-  completed Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  title       String
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
