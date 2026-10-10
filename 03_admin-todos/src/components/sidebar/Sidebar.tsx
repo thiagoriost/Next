@@ -1,7 +1,25 @@
 import Link from "next/link";
-import Image from "next/image";
 import { CiLogout } from "react-icons/ci";
 import { SidebarItem } from "./SidebarItem";
+import { IoCalendarOutline, IoCheckboxOutline, IoListCircleOutline } from "react-icons/io5";
+
+const sidebarItems = [
+  {
+    title: "Dashboard",
+    icon: <IoCalendarOutline size={30} />,
+    path: "/dashboard"
+  },
+  {
+    title: "Rest ToDos",
+    icon: <IoCheckboxOutline size={30} />,
+    path: "/dashboard/rest-todos"
+  },
+  {
+    title: "Server Actions ToDos",
+    icon: <IoListCircleOutline size={30} />,
+    path: "/dashboard/server-actions-todos"
+  }
+];
 
 export const Sidebar = () => {
   return (
@@ -42,16 +60,16 @@ export const Sidebar = () => {
         <ul className="space-y-2 tracking-wide mt-8">
           {/* TODO: src/components <SidebarItem /> */}
           {/* Active className: text-white bg-gradient-to-r from-sky-600 to-cyan-400 */}
-          <li>
-            <SidebarItem item="Dashboard" />
-          </li>
-          <li>
-            <SidebarItem item="Categories" />
-          </li>
+          {
+            sidebarItems.map((item) => (
+              <SidebarItem key={item.title} title={item.title} icon={item.icon} path={item.path} />
+            ))
+          }
+          
         </ul>
       </div>
 
-      <div className="mt-8 flex  border-t border-gray-200 pt-4">
+      <div className="mt-auto flex border-t border-gray-200 pt-4">
         <button className="px-4 py-3 flex items-center space-x-4 rounded-md text-gray-600 group">
           <CiLogout />
           <span className="group-hover:text-gray-700">Logout</span>

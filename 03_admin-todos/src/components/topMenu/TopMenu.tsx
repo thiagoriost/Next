@@ -1,9 +1,9 @@
-import React from "react";
+
 import { CiBellOn, CiChat1, CiMenuBurger, CiSearch } from "react-icons/ci";
 
 export const TopMenu = () => {
   return (
-    <div className="sticky z-10 top-0 h-16 border-b bg-white lg:py-2.5">
+    <div className="sticky top-0 z-10 col-span-full h-16 w-full border-b border-gray-200 bg-white">
       <div className="px-6 flex items-center justify-between space-x-4">
         <h5 hidden className="text-2xl text-gray-600 font-medium lg:block">
           Dashboard
