@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { NextResponse, NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import * as yup from 'yup';
 
 export async function GET(request: Request) { 
@@ -38,6 +38,20 @@ export async function POST(request: Request) {
             data: validatedBody,
         });
         return NextResponse.json({ todo }, { status: 201 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ error: message }, { status: 400 });
+    }
+}
+
+/* delete a todo */
+export async function DELETE() {
+    console.log("DELETE route todos[id] 55")
+    try {
+        const todo = await prisma.todo.deleteMany({
+            where: { completed: true },
+        });
+        return NextResponse.json({ todo });
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';
         return NextResponse.json({ error: message }, { status: 400 });
