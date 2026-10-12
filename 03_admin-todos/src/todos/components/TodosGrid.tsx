@@ -1,8 +1,9 @@
 'use client';
 import { Todo } from "@prisma/client";
 import { TodoItem } from "./TodoItem";
-import * as todosApi from '@/todos/helpers/todos'
-import { useRouter } from "next/navigation";
+// import * as todosApi from '@/todos/helpers/todos'
+// import { useRouter } from "next/navigation";
+import { toggleTodo } from "../actions/todo-actions";
 
 /** Propiedades para mostrar y actualizar la lista de tareas. */
 export interface Props {
@@ -11,22 +12,18 @@ export interface Props {
 }
 
 /**
- * Renderiza las tareas en una cuadrícula y permite actualizar su estado.
+ * Renderiza las tareas en una cuadrícula y permite cambiar su estado mediante
+ * la acción de servidor correspondiente.
+ *
  * @param props Propiedades de la cuadrícula.
+ * @returns La cuadrícula con una tarjeta por cada tarea recibida.
  */
 export const TodosGrid = ({ todos }: Props) => {
     console.log({todos})
 
-    const router = useRouter();
+    // const router = useRouter();
 
-    /**
-     * Cambia el estado de finalización de una tarea y actualiza la ruta actual.
-     * @param id Identificador de la tarea.
-     * @param completed Nuevo estado de finalización.
-     * @returns La tarea actualizada recibida de la API.
-     * @throws Propaga cualquier error ocurrido al actualizar la tarea.
-     */
-    const toggleTodo = async (id: string, completed: boolean) => {
+    /* const toggleTodo = async (id: string, completed: boolean) => {
         console.log("toggleTodo", { id, completed });
       try {
         
@@ -37,7 +34,7 @@ export const TodosGrid = ({ todos }: Props) => {
         console.error('Error updating todo:', error);
         throw error;
       }
-    };
+    }; */
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

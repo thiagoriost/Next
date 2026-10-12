@@ -2,23 +2,30 @@
 
 import React from "react";
 import { IoTrashOutline } from "react-icons/io5";
-import * as todosApi from "@/todos/helpers/todos";
-import { useRouter } from "next/navigation";
-import { Props } from "./TodosGrid";
+import { createTodo, deleteCompleted } from "../actions/todo-actions";
 
 
+/* import * as todosApi from "@/todos/helpers/todos";
+import { useRouter } from "next/navigation"; */
 
-/** Formulario para crear tareas con título y descripción. */
-export const NewTodo = ({ todos }: Props) => {
+
+/**
+ * Formulario para crear tareas y eliminar las que ya están completadas.
+ *
+ * @returns Los campos de título y descripción, y los botones de acción.
+ */
+export const NewTodo = () => {
   const [description, setDescription] = React.useState("");
   const [title, setTitle] = React.useState("");
-  const router = useRouter();
+  // const router = useRouter();
   
 
   /**
-   * Valida los campos y crea la tarea; al completarse, actualiza la ruta y limpia el formulario.
+   * Evita el envío nativo, valida que ambos campos tengan contenido y solicita
+   * la creación de una tarea antes de limpiar el formulario.
+   *
    * @param e Evento de envío del formulario.
-   * @throws Propaga cualquier error ocurrido al crear la tarea.
+   * @returns Una promesa que se resuelve después de procesar el envío.
    */
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,9 +36,11 @@ export const NewTodo = ({ todos }: Props) => {
     }
     /* logica para crear el todo */
     try {
-      const crearTodo = await todosApi.createTodo(description, title);
+      /* const crearTodo = await todosApi.createTodo(description, title);
       router.refresh(); // Refresh the current route to reflect the updated state
-      console.log({ crearTodo });
+      */
+     const todo = createTodo(description, title)
+     console.log({ todo });
       setDescription("");
       setTitle("");
     } catch (error) {
@@ -40,14 +49,14 @@ export const NewTodo = ({ todos }: Props) => {
     }
   };
 
-  async function deleteCompleted(): Promise<void> {
+  /* async function deleteCompleted(): Promise<void> {
     todosApi.deleteCompletedTodos()
         .then(() => router.refresh())
         .catch(error => {
           console.error(`Error deleting todo with id:`, error);
         });
         
-  }
+  } */
 
   return (
     <form className="flex w-full" onSubmit={onSubmit}>

@@ -3,11 +3,20 @@ import  './TodoItem.module.css';
 import { IoCheckboxOutline, IoSquareOutline } from 'react-icons/io5';
 
 
+/** Propiedades necesarias para representar una tarea y cambiar su estado. */
 interface Props {
+  /** Tarea que se mostrará. */
   todo: Todo;
+  /** Acción que actualiza el estado de finalización de la tarea. */
   toggleTodo: (id: string, completed: boolean) => Promise<Todo | void>;
 }
 
+/**
+ * Muestra el título, la descripción y el indicador de estado de una tarea.
+ *
+ * @param props Tarea y acción para alternar su estado.
+ * @returns La tarjeta visual de la tarea.
+ */
 export const TodoItem = ({ todo, toggleTodo }: Props) => {
   return (
     <div className={todo.completed ? 'todoDone' : 'todoPending'}>
@@ -27,6 +36,8 @@ export const TodoItem = ({ todo, toggleTodo }: Props) => {
           }
         </div>
         <div className="text-center sm:text-left">
+          {todo.title}
+          <br />
           {todo.description}
         </div>
         
