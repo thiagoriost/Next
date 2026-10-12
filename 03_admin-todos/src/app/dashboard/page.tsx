@@ -1,4 +1,4 @@
-import { TopMenu, WidgetItem } from "@/components";
+import { WidgetItem } from "@/components";
 
 // snippet prc
 export default function DashboardPage() {

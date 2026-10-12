@@ -4,12 +4,16 @@ import React from "react";
 import { IoTrashOutline } from "react-icons/io5";
 import * as todosApi from "@/todos/helpers/todos";
 import { useRouter } from "next/navigation";
+import { Props } from "./TodosGrid";
+
+
 
 /** Formulario para crear tareas con título y descripción. */
-export const NewTodo = () => {
+export const NewTodo = ({ todos }: Props) => {
   const [description, setDescription] = React.useState("");
   const [title, setTitle] = React.useState("");
   const router = useRouter();
+  
 
   /**
    * Valida los campos y crea la tarea; al completarse, actualiza la ruta y limpia el formulario.
@@ -35,6 +39,15 @@ export const NewTodo = () => {
       throw error;
     }
   };
+
+  async function deleteCompleted(): Promise<void> {
+    todosApi.deleteCompletedTodos()
+        .then(() => router.refresh())
+        .catch(error => {
+          console.error(`Error deleting todo with id:`, error);
+        });
+        
+  }
 
   return (
     <form className="flex w-full" onSubmit={onSubmit}>
@@ -69,7 +82,7 @@ export const NewTodo = () => {
       <span className="flex flex-1"></span>
 
       <button
-        //TODO: onClick={ () => deleteCompleted() }
+        onClick={ () => deleteCompleted() }
         type="button"
         className="flex items-center justify-center rounded ml-2 bg-red-400 p-2 text-white hover:bg-red-700 transition-all"
       >

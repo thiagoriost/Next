@@ -5,7 +5,7 @@ import * as todosApi from '@/todos/helpers/todos'
 import { useRouter } from "next/navigation";
 
 /** Propiedades para mostrar y actualizar la lista de tareas. */
-interface Props {
+export interface Props {
   /** Tareas que se renderizan en la cuadrícula. */
   todos?: Todo[];
 }
