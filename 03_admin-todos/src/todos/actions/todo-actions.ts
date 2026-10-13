@@ -4,6 +4,14 @@ import prisma from "@/lib/prisma";
 import { Todo } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+export const sleep = async(seconds:number=0)=>{
+    console.log("onSleep")
+    return new Promise(resolve=>{
+        setTimeout(() => {
+            resolve(true);
+        }, seconds*1000);
+    })
+}
 
 /**
  * Actualiza el estado de finalización de una tarea y revalida la página que
@@ -15,6 +23,9 @@ import { revalidatePath } from "next/cache";
  * @throws Error si no existe una tarea con el identificador indicado.
  */
 export const toggleTodo = async (id: string, completed: boolean): Promise<Todo> => {
+
+    await sleep(3);
+
     console.log("on toggleTodo", { id, completed });
     const todo = await prisma.todo.findFirst({ where: { id } });
 

@@ -24,7 +24,7 @@ async function RestToDosContent() {
   return (
     <div>
       <div className="w-full px-3 mx-5 mb-5">
-        <NewTodo todos={todos}/>
+        <NewTodo/>
       </div>
       <TodosGrid todos={todos} />
     </div>

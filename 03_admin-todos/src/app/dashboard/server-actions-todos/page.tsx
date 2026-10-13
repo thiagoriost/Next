@@ -15,6 +15,7 @@ export const metadata: Metadata = {
  * @returns El formulario de creación y la cuadrícula de tareas.
  */
 const ServerActionsTodosContent = async () => {
+  console.log("ServerActionsTodosContent Construido")
   const todos = await prisma.todo.findMany({
     orderBy: {
       description: "asc",

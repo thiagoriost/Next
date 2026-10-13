@@ -1,3 +1,5 @@
+'use client'
+import { startTransition, useOptimistic } from 'react';
 import { Todo } from '@prisma/client';
 import  './TodoItem.module.css';
 import { IoCheckboxOutline, IoSquareOutline } from 'react-icons/io5';
@@ -18,27 +20,43 @@ interface Props {
  * @returns La tarjeta visual de la tarea.
  */
 export const TodoItem = ({ todo, toggleTodo }: Props) => {
+
+  const [todoOptimistic, toggleTodoOptimistic] = useOptimistic(
+    todo,
+    (state, newCompleteValue: boolean)=>({...state, completed:newCompleteValue})
+  )
+
+  const onToggleTodo=async()=>{
+    try {
+      startTransition(()=>toggleTodoOptimistic(!todoOptimistic.completed))
+      
+      await toggleTodo(todoOptimistic.id, !todoOptimistic.completed)
+    } catch (error) {
+      console.log({error})
+    }
+  }
+
   return (
-    <div className={todo.completed ? 'todoDone' : 'todoPending'}>
+    <div className={todoOptimistic.completed ? 'todoDone' : 'todoPending'}>
       <div className="flex flex-col sm:flex-row justify-start items-center gap-4">
         <div className={`
           flex p-2 rounded-md cursor-pointer
           hover:bg-opacity-60
-          ${todo.completed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}
+          ${todoOptimistic.completed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}
         `}
-        onClick={() => toggleTodo && toggleTodo(todo.id, !todo.completed)}
+        onClick={() => onToggleTodo()}
         >
           {
-            todo.completed
+            todoOptimistic.completed
               ? <IoCheckboxOutline size={24} />
               : <IoSquareOutline size={24} />
              
           }
         </div>
         <div className="text-center sm:text-left">
-          {todo.title}
+          {todoOptimistic.title}
           <br />
-          {todo.description}
+          {todoOptimistic.description}
         </div>
         
       </div>
