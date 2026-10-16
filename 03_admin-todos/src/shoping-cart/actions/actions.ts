@@ -1,6 +1,6 @@
 /* esto es desde el lado del cliente */
 
-import { getCookie, hasCookie } from "cookies-next"
+import { getCookie, hasCookie, setCookie } from "cookies-next"
 
 /* 
 cookie: cart
@@ -19,4 +19,24 @@ export const getCookieCart = ():{[id:string]:number}=>{
         return cookieCart;
     }
     return {}
+}
+
+export const addProductToCart = (id: string)=>{
+    const cookieCart = getCookieCart();
+
+    if(cookieCart[id]){
+        cookieCart[id]=cookieCart[id]+1;
+    }else{
+        cookieCart[id]=1;
+    }
+
+    setCookie('cart', JSON.stringify(cookieCart));
+}
+
+export const removeProductToCart = (id: string)=>{
+    const cookieCart = getCookieCart();
+    console.log("cookieCart",{id, cookieCart})
+
+    delete cookieCart[id];
+    setCookie('cart', JSON.stringify(cookieCart));
 }
