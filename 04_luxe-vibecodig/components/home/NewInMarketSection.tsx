@@ -1,17 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Property } from '@/types/property';
 import PropertyCard from './PropertyCard';
+import Pagination from './Pagination';
 
 interface NewInMarketSectionProps {
   properties: Property[];
   marketFilter: 'All' | 'Buy' | 'Rent';
   onMarketFilterChange: (filter: 'All' | 'Buy' | 'Rent') => void;
   onPropertySelect?: (property: Property) => void;
-  onLoadMore?: () => void;
-  hasMore?: boolean;
-  isLoadingMore?: boolean;
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
 }
 
 export default function NewInMarketSection({
@@ -19,14 +20,14 @@ export default function NewInMarketSection({
   marketFilter,
   onMarketFilterChange,
   onPropertySelect,
-  onLoadMore,
-  hasMore = false,
-  isLoadingMore = false,
+  currentPage,
+  totalPages,
+  totalCount,
 }: NewInMarketSectionProps) {
   const filterOptions: Array<'All' | 'Buy' | 'Rent'> = ['All', 'Buy', 'Rent'];
 
   return (
-    <section>
+    <section id="market-section">
       {/* Header and Filter Buttons */}
       <div className="flex items-end justify-between mb-8">
         <div>
@@ -85,19 +86,14 @@ export default function NewInMarketSection({
         </div>
       )}
 
-      {/* Load More Button */}
-      {hasMore && (
-        <div className="mt-12 text-center">
-          <button
-            type="button"
-            onClick={onLoadMore}
-            disabled={isLoadingMore}
-            className="px-8 py-3 bg-white border border-[#19322F]/10 hover:border-[#006655] hover:text-[#006655] text-[#19322F] font-medium rounded-lg transition-all hover:shadow-md cursor-pointer disabled:opacity-50"
-          >
-            {isLoadingMore ? 'Loading...' : 'Load more properties'}
-          </button>
-        </div>
-      )}
+      {/* Server-side Pagination */}
+      <Suspense>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+        />
+      </Suspense>
     </section>
   );
 }
