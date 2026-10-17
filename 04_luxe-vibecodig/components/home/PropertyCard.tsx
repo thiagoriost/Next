@@ -1,0 +1,102 @@
+'use client';
+
+import React, { useState } from 'react';
+import { Property } from '@/types/property';
+import { formatPrice } from '@/data/properties';
+
+interface PropertyCardProps {
+  property: Property;
+  onSelect?: (property: Property) => void;
+  className?: string;
+}
+
+export default function PropertyCard({
+  property,
+  onSelect,
+  className = '',
+}: PropertyCardProps) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsFavorite(!isFavorite);
+  };
+
+  const isRent = property.type === 'rent';
+  const badgeText = property.badge || (isRent ? 'FOR RENT' : 'FOR SALE');
+  const badgeBg = isRent ? 'bg-[#006655]/90' : 'bg-[#19322F]/90';
+
+  return (
+    <article
+      onClick={() => onSelect?.(property)}
+      className={`bg-white dark:bg-white/5 rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] transition-all duration-300 group cursor-pointer h-full flex flex-col ${className}`}
+    >
+      {/* Image container */}
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <img
+          src={property.imageUrl}
+          alt={property.imageAlt}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+
+        {/* Favorite button */}
+        <button
+          type="button"
+          onClick={toggleFavorite}
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          className="absolute top-3 right-3 p-2 bg-white/90 dark:bg-black/50 rounded-full hover:bg-[#006655] hover:text-white transition-colors text-[#19322F] cursor-pointer shadow-sm"
+        >
+          <span className={`material-icons text-lg ${isFavorite ? 'text-red-500 fill-current' : ''}`}>
+            {isFavorite ? 'favorite' : 'favorite_border'}
+          </span>
+        </button>
+
+        {/* Status Badge */}
+        <div className={`absolute bottom-3 left-3 ${badgeBg} text-white text-xs font-bold px-2 py-1 rounded shadow-sm`}>
+          {badgeText}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 flex flex-col flex-grow">
+        <div className="flex justify-between items-baseline mb-2">
+          <h3 className="font-bold text-lg text-[#19322F] dark:text-white">
+            {formatPrice(property.price)}
+            {property.pricePeriod && (
+              <span className="text-sm font-normal text-[#5C706D]">
+                /{property.pricePeriod}
+              </span>
+            )}
+          </h3>
+        </div>
+
+        <h4 className="text-[#19322F] dark:text-gray-200 font-medium truncate mb-1">
+          {property.title}
+        </h4>
+        <p className="text-[#5C706D] text-xs mb-4">{property.location}</p>
+
+        {/* Specs footer */}
+        <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100 dark:border-white/10">
+          <div className="flex items-center gap-1 text-[#5C706D] text-xs">
+            <span className="material-icons text-sm text-[#006655]/80">
+              king_bed
+            </span>{' '}
+            {property.beds}
+          </div>
+          <div className="flex items-center gap-1 text-[#5C706D] text-xs">
+            <span className="material-icons text-sm text-[#006655]/80">
+              bathtub
+            </span>{' '}
+            {property.baths}
+          </div>
+          <div className="flex items-center gap-1 text-[#5C706D] text-xs">
+            <span className="material-icons text-sm text-[#006655]/80">
+              square_foot
+            </span>{' '}
+            {property.areaSqM}m²
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
