@@ -27,7 +27,7 @@ export default function HeroSearch({
     <section className="py-12 md:py-16">
       <div className="max-w-3xl mx-auto text-center space-y-8">
         {/* Main Title */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-[#19322F] dark:text-white leading-tight">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-[#19322F] leading-tight">
           Find your{' '}
           <span className="relative inline-block">
             <span className="relative z-10 font-medium">sanctuary</span>
@@ -47,7 +47,7 @@ export default function HeroSearch({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="block w-full pl-12 pr-28 py-4 rounded-xl border-none bg-white dark:bg-white/5 text-[#19322F] dark:text-white shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] placeholder-[#5C706D]/60 focus:ring-2 focus:ring-[#006655] focus:outline-none focus:bg-white dark:focus:bg-white/10 transition-all text-lg"
+            className="block w-full pl-12 pr-28 py-4 rounded-xl border-none bg-white text-[#19322F] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] placeholder-[#5C706D]/60 focus:ring-2 focus:ring-[#006655] focus:outline-none focus:bg-white transition-all text-lg"
             placeholder="Search by city, neighborhood, or address..."
           />
           <button
@@ -70,7 +70,7 @@ export default function HeroSearch({
                 className={
                   isSelected
                     ? 'whitespace-nowrap px-5 py-2 rounded-full bg-[#19322F] text-white text-sm font-medium shadow-lg shadow-[#19322F]/10 transition-transform hover:-translate-y-0.5 cursor-pointer'
-                    : 'whitespace-nowrap px-5 py-2 rounded-full bg-white dark:bg-white/5 border border-[#19322F]/5 text-[#5C706D] hover:text-[#19322F] hover:border-[#006655]/50 text-sm font-medium transition-all hover:bg-[#006655]/5 cursor-pointer'
+                    : 'whitespace-nowrap px-5 py-2 rounded-full bg-white border border-[#19322F]/5 text-[#5C706D] hover:text-[#19322F] hover:border-[#006655]/50 text-sm font-medium transition-all hover:bg-[#006655]/5 cursor-pointer'
                 }
               >
                 {category}
@@ -83,7 +83,7 @@ export default function HeroSearch({
           <button
             type="button"
             onClick={onFilterClick}
-            className="whitespace-nowrap flex items-center gap-1 px-4 py-2 rounded-full text-[#19322F] font-medium text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+            className="whitespace-nowrap flex items-center gap-1 px-4 py-2 rounded-full text-[#19322F] font-medium text-sm hover:bg-black/5 transition-colors cursor-pointer"
           >
             <span className="material-icons text-base">tune</span> Filters
           </button>

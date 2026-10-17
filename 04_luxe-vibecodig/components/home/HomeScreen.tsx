@@ -81,7 +81,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EEF6F6] dark:bg-[#0f231f] text-[#19322F] dark:text-white font-sans antialiased selection:bg-[#006655] selection:text-white transition-colors">
+    <div className="min-h-screen bg-[#EEF6F6] text-[#19322F] font-sans antialiased selection:bg-[#006655] selection:text-white transition-colors">
       {/* Navigation */}
       <Navbar
         activeTab={activeNavTab}
