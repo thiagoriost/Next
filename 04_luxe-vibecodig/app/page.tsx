@@ -12,7 +12,16 @@ interface HomePageProps {
   }>;
 }
 
-export default async function Home({ searchParams }: HomePageProps) {
+async function HomeContent({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    page?: string;
+    category?: string;
+    marketType?: string;
+    q?: string;
+  }>;
+}) {
   const params = await searchParams;
 
   const page = Math.max(1, parseInt(params.page ?? '1', 10));
@@ -20,24 +29,37 @@ export default async function Home({ searchParams }: HomePageProps) {
   const marketType = (params.marketType ?? 'All') as 'All' | 'Buy' | 'Rent';
   const searchQuery = params.q ?? '';
 
-  // Both queries execute in parallel on the server
+  // Parallel server fetches
   const [featuredProperties, marketResult] = await Promise.all([
     getFeaturedProperties(),
     getMarketProperties({ page, category, marketType, searchQuery }),
   ]);
 
   return (
-    <Suspense>
-      <HomeScreen
-        featuredProperties={featuredProperties}
-        marketProperties={marketResult.properties}
-        totalPages={marketResult.totalPages}
-        currentPage={marketResult.currentPage}
-        totalCount={marketResult.totalCount}
-        initialCategory={category}
-        initialMarketType={marketType}
-        initialSearchQuery={searchQuery}
-      />
+    <HomeScreen
+      featuredProperties={featuredProperties}
+      marketProperties={marketResult.properties}
+      totalPages={marketResult.totalPages}
+      currentPage={marketResult.currentPage}
+      totalCount={marketResult.totalCount}
+      initialCategory={category}
+      initialMarketType={marketType}
+      initialSearchQuery={searchQuery}
+    />
+  );
+}
+
+export default function Home({ searchParams }: HomePageProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#EEF6F6] flex flex-col items-center justify-center text-[#006655]">
+          <span className="material-icons animate-spin text-3xl mb-2">refresh</span>
+          <span className="text-sm font-medium text-[#19322F]">Loading LuxeEstate...</span>
+        </div>
+      }
+    >
+      <HomeContent searchParams={searchParams} />
     </Suspense>
   );
 }

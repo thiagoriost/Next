@@ -27,6 +27,14 @@ export type Database = {
           price_period: Database['public']['Enums']['price_period'] | null
           title: string
           type: Database['public']['Enums']['property_type']
+          slug: string
+          description: string | null
+          lat: number | null
+          lng: number | null
+          parking_spots: number | null
+          agent_name: string | null
+          agent_image_url: string | null
+          amenities: string[] | null
         }
         Insert: {
           area_sq_m: number
@@ -45,6 +53,14 @@ export type Database = {
           price_period?: Database['public']['Enums']['price_period'] | null
           title: string
           type: Database['public']['Enums']['property_type']
+          slug: string
+          description?: string | null
+          lat?: number | null
+          lng?: number | null
+          parking_spots?: number | null
+          agent_name?: string | null
+          agent_image_url?: string | null
+          amenities?: string[] | null
         }
         Update: {
           area_sq_m?: number
@@ -63,8 +79,51 @@ export type Database = {
           price_period?: Database['public']['Enums']['price_period'] | null
           title?: string
           type?: Database['public']['Enums']['property_type']
+          slug?: string
+          description?: string | null
+          lat?: number | null
+          lng?: number | null
+          parking_spots?: number | null
+          agent_name?: string | null
+          agent_image_url?: string | null
+          amenities?: string[] | null
         }
         Relationships: []
+      }
+      property_images: {
+        Row: {
+          id: string
+          property_id: string
+          url: string
+          alt: string
+          display_order: number
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          property_id: string
+          url: string
+          alt?: string
+          display_order?: number
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          property_id?: string
+          url?: string
+          alt?: string
+          display_order?: number
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_images_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

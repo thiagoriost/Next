@@ -11,6 +11,7 @@ export const PROPERTY_CATEGORIES: PropertyCategory[] = [
 export const FEATURED_PROPERTIES: Property[] = [
   {
     id: 'feat-1',
+    slug: 'the-glass-pavilionnnnn-feat-1',
     title: 'The Glass Pavilion',
     location: 'Beverly Hills, California',
     price: 5250000,
@@ -28,6 +29,7 @@ export const FEATURED_PROPERTIES: Property[] = [
   },
   {
     id: 'feat-2',
+    slug: 'azure-heights-penthouse-feat-2',
     title: 'Azure Heights Penthouse',
     location: 'Downtown, Vancouver',
     price: 3800000,
@@ -48,6 +50,7 @@ export const FEATURED_PROPERTIES: Property[] = [
 export const INITIAL_MARKET_PROPERTIES: Property[] = [
   {
     id: 'market-1',
+    slug: 'modern-family-home-market-1',
     title: 'Modern Family Home',
     location: '123 Pine St, Seattle',
     price: 850000,
@@ -64,6 +67,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-2',
+    slug: 'urban-loft-market-2',
     title: 'Urban Loft',
     location: '456 Elm Ave, Portland',
     price: 3200,
@@ -81,6 +85,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-3',
+    slug: 'highland-retreat-market-3',
     title: 'Highland Retreat',
     location: '789 Mountain Rd, Bend',
     price: 620000,
@@ -97,6 +102,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-4',
+    slug: 'sea-view-penthouse-market-4',
     title: 'Sea View Penthouse',
     location: '321 Ocean Dr, Miami',
     price: 4500,
@@ -114,6 +120,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-5',
+    slug: 'central-studio-market-5',
     title: 'Central Studio',
     location: '555 Main St, Chicago',
     price: 550000,
@@ -130,6 +137,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-6',
+    slug: 'garden-villa-market-6',
     title: 'Garden Villa',
     location: '999 Oak Ln, Austin',
     price: 2800,
@@ -147,6 +155,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-7',
+    slug: 'villa-bellissima-market-7',
     title: 'Villa Bellissima',
     location: '742 Vista Del Mar, Malibu',
     price: 4850000,
@@ -156,13 +165,14 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
     baths: 5.5,
     areaSqM: 520,
     imageUrl:
-      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-160058515526-990dced4db0d?auto=format&fit=crop&w=800&q=80',
     imageAlt: 'Modern luxury villa in Malibu with infinity pool',
     badge: 'FOR SALE',
     badgeType: 'sale',
   },
   {
     id: 'market-8',
+    slug: 'the-grand-solarium-penthouse-market-8',
     title: 'The Grand Solarium Penthouse',
     location: '100 Brickell Ave, Miami',
     price: 3250000,
@@ -179,6 +189,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-9',
+    slug: 'soho-artisan-loft-market-9',
     title: 'SoHo Artisan Loft',
     location: '72 Mercer St, New York',
     price: 5800,
@@ -196,6 +207,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-10',
+    slug: 'oakhaven-modern-estate-market-10',
     title: 'Oakhaven Modern Estate',
     location: '810 Beverly Glen, Los Angeles',
     price: 2150000,
@@ -212,6 +224,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-11',
+    slug: 'palacio-de-la-luz-market-11',
     title: 'Palacio de la Luz',
     location: '304 Palm Canyon Dr, Palm Springs',
     price: 7500,
@@ -229,6 +242,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-12',
+    slug: 'the-glass-horizon-penthouse-market-12',
     title: 'The Glass Horizon Penthouse',
     location: '188 Minna St, San Francisco',
     price: 8200,
@@ -246,6 +260,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-13',
+    slug: 'lumiere-waterfront-suite-market-13',
     title: 'Lumiere Waterfront Suite',
     location: '520 Lake Shore Dr, Chicago',
     price: 790000,
@@ -262,6 +277,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-14',
+    slug: 'nordic-pine-sanctuary-market-14',
     title: 'Nordic Pine Sanctuary',
     location: '62 Rainier Way, Seattle',
     price: 3900,
@@ -279,6 +295,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-15',
+    slug: 'miramar-oceanfront-villa-market-15',
     title: 'Miramar Oceanfront Villa',
     location: '12 Cliffside Dr, Carmel',
     price: 6400000,
@@ -295,6 +312,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-16',
+    slug: 'skycrest-penthouse-residence-market-16',
     title: 'Skycrest Penthouse Residence',
     location: '250 West St, New York',
     price: 4950000,
@@ -314,6 +332,7 @@ export const INITIAL_MARKET_PROPERTIES: Property[] = [
 export const ADDITIONAL_MARKET_PROPERTIES: Property[] = [
   {
     id: 'market-17',
+    slug: 'serene-lakeside-haven-market-17',
     title: 'Serene Lakeside Haven',
     location: '402 Emerald Bay, Lake Tahoe',
     price: 1450000,
@@ -330,6 +349,7 @@ export const ADDITIONAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-18',
+    slug: 'skyline-horizon-residence-market-18',
     title: 'Skyline Horizon Residence',
     location: '88 Hudson Yards, New York',
     price: 6200,
@@ -347,6 +367,7 @@ export const ADDITIONAL_MARKET_PROPERTIES: Property[] = [
   },
   {
     id: 'market-19',
+    slug: 'minimalist-forest-sanctuary-market-19',
     title: 'Minimalist Forest Sanctuary',
     location: '15 Aspen Ridge, Aspen',
     price: 2950000,

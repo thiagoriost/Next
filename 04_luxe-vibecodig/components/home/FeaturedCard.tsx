@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Property } from '@/types/property';
 import { formatPrice } from '@/data/properties';
 
@@ -13,14 +14,16 @@ export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) 
   const [isFavorite, setIsFavorite] = useState(false);
 
   const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setIsFavorite(!isFavorite);
   };
 
   return (
-    <div
+    <Link
+      href={`/properties/${property.slug}`}
       onClick={() => onSelect?.(property)}
-      className="group relative rounded-xl overflow-hidden shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] bg-white cursor-pointer transition-all duration-300 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.1)]"
+      className="group relative rounded-xl overflow-hidden shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] bg-white cursor-pointer transition-all duration-300 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.1)] block"
     >
       {/* Property Image Container */}
       <div className="aspect-[4/3] w-full overflow-hidden relative">
@@ -42,7 +45,7 @@ export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) 
           type="button"
           onClick={toggleFavorite}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-[#19322F] hover:bg-[#006655] hover:text-white transition-all cursor-pointer shadow-sm"
+          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-[#19322F] hover:bg-[#006655] hover:text-white transition-all cursor-pointer shadow-sm z-10"
         >
           <span className={`material-icons text-xl ${isFavorite ? 'text-red-500 fill-current' : ''}`}>
             {isFavorite ? 'favorite' : 'favorite_border'}
@@ -83,6 +86,6 @@ export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) 
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

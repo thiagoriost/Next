@@ -5,10 +5,13 @@
   --color-nordic-dark: #19322F;
   --color-nordic-muted: #5C706D;
   --color-mosque: #006655;
+  --color-primary-hover: #005544;
+  --color-primary-light: #e6f0ee;
   --color-hint-of-green: #D9ECC8;
   --color-clear-day: #EEF6F6;
   --color-background-light: #EEF6F6;
-  --color-primary: #06f9d0;
+  --color-neutral-surface: #ffffff;
+  --color-primary: #006655;
 
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
@@ -32,12 +35,20 @@ body {
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar,
 .hide-scroll::-webkit-scrollbar {
   display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide,
 .hide-scroll {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Leaflet map styles */
+.leaflet-container {
+  font-family: inherit;
+  z-index: 10;
 }
