@@ -27,6 +27,10 @@ export default function PropertyCard({
   const isRent = property.type === 'rent';
   const badgeText = property.badge || (isRent ? 'FOR RENT' : 'FOR SALE');
   const badgeBg = isRent ? 'bg-[#006655]/90' : 'bg-[#19322F]/90';
+  const mainImage =
+    property.images && property.images.length > 0
+      ? property.images[0]
+      : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80';
 
   return (
     <Link
@@ -37,8 +41,8 @@ export default function PropertyCard({
       {/* Image container */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={property.imageUrl}
-          alt={property.imageAlt}
+          src={mainImage}
+          alt={property.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
 

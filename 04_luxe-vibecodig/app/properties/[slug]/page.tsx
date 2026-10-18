@@ -10,6 +10,9 @@ interface PropertyPageProps {
   }>;
 }
 
+const DEFAULT_OG_IMAGE =
+  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80';
+
 /**
  * Dynamic SEO metadata generator for each individual property.
  */
@@ -28,8 +31,8 @@ export async function generateMetadata({
 
   const ogImages =
     property.images && property.images.length > 0
-      ? property.images.map((img) => img.url)
-      : [property.imageUrl];
+      ? property.images
+      : [DEFAULT_OG_IMAGE];
 
   return {
     title: `${property.title} — ${property.location} | LuxeEstate`,
@@ -82,7 +85,7 @@ async function PropertyDetailContent({
     name: property.title,
     description:
       property.description || `${property.category} in ${property.location}`,
-    image: property.images?.map((img) => img.url) || [property.imageUrl],
+    image: property.images && property.images.length > 0 ? property.images : [DEFAULT_OG_IMAGE],
     offers: {
       '@type': 'Offer',
       price: property.price,

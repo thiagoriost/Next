@@ -2,13 +2,19 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { PropertyImage } from '@/types/property';
 
 interface PropertyGalleryProps {
-  images: PropertyImage[];
+  images: string[];
   title: string;
   badge?: string;
 }
+
+const DEFAULT_FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80',
+  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80',
+  'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&q=80',
+  'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1200&q=80',
+];
 
 export default function PropertyGallery({
   images,
@@ -19,18 +25,8 @@ export default function PropertyGallery({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // Guarantee at least one valid image
-  const displayImages: PropertyImage[] =
-    images.length > 0
-      ? images
-      : [
-          {
-            id: 'fallback-0',
-            propertyId: 'default',
-            url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80',
-            alt: title,
-            displayOrder: 0,
-          },
-        ];
+  const displayImages: string[] =
+    images && images.length > 0 ? images : DEFAULT_FALLBACK_IMAGES;
 
   const currentImage = displayImages[selectedIndex] || displayImages[0];
 
@@ -68,8 +64,8 @@ export default function PropertyGallery({
         onClick={() => setIsLightboxOpen(true)}
       >
         <Image
-          src={currentImage.url}
-          alt={currentImage.alt || title}
+          src={currentImage}
+          alt={title}
           fill
           priority
           sizes="(max-width: 1024px) 100vw, 66vw"
@@ -103,11 +99,11 @@ export default function PropertyGallery({
       {/* Thumbnail Strip */}
       {displayImages.length > 1 && (
         <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 snap-x">
-          {displayImages.map((img, idx) => {
+          {displayImages.map((imageUrl, idx) => {
             const isSelected = idx === selectedIndex;
             return (
               <button
-                key={img.id || idx}
+                key={idx}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
                 aria-label={`View image ${idx + 1}`}
@@ -118,8 +114,8 @@ export default function PropertyGallery({
                 }`}
               >
                 <Image
-                  src={img.url}
-                  alt={img.alt || `Thumbnail ${idx + 1}`}
+                  src={imageUrl}
+                  alt={`${title} - Photo ${idx + 1}`}
                   fill
                   sizes="192px"
                   className="object-cover"
@@ -163,8 +159,8 @@ export default function PropertyGallery({
           >
             <div className="relative w-full h-full max-h-[75vh]">
               <Image
-                src={currentImage.url}
-                alt={currentImage.alt || title}
+                src={currentImage}
+                alt={`${title} - Photo ${selectedIndex + 1}`}
                 fill
                 sizes="100vw"
                 className="object-contain"
@@ -202,9 +198,9 @@ export default function PropertyGallery({
             className="flex gap-2 overflow-x-auto scrollbar-hide justify-center py-2 z-20"
             onClick={(e) => e.stopPropagation()}
           >
-            {displayImages.map((img, idx) => (
+            {displayImages.map((imageUrl, idx) => (
               <button
-                key={`lb-thumb-${img.id || idx}`}
+                key={`lb-thumb-${idx}`}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
                 className={`w-16 h-12 relative rounded overflow-hidden flex-shrink-0 transition-opacity ${
@@ -214,7 +210,7 @@ export default function PropertyGallery({
                 }`}
               >
                 <Image
-                  src={img.url}
+                  src={imageUrl}
                   alt={`Thumbnail ${idx + 1}`}
                   fill
                   sizes="64px"

@@ -1,15 +1,27 @@
 import { supabase } from '@/lib/supabase';
-import { Property, PropertyCategory, PropertyImage } from '@/types/property';
+import { Property, PropertyCategory } from '@/types/property';
 import { Database } from '@/types/database.types';
 
 // Number of market properties per page
 export const MARKET_PAGE_SIZE = 4;
 
 type DbProperty = Database['public']['Tables']['properties']['Row'];
-type DbPropertyImage = Database['public']['Tables']['property_images']['Row'];
 
-/** Map a Supabase DB row to the app's Property shape */
-function mapDbToProperty(row: DbProperty, images?: PropertyImage[]): Property {
+/** Fallback placeholder images if none provided */
+const DEFAULT_FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80',
+  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80',
+  'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&q=80',
+  'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1200&q=80',
+];
+
+/** Map a Supabase DB row to the app's Property shape using images array exclusively */
+function mapDbToProperty(row: DbProperty): Property {
+  const images =
+    row.images && Array.isArray(row.images) && row.images.length > 0
+      ? row.images
+      : DEFAULT_FALLBACK_IMAGES;
+
   return {
     id: row.id,
     slug: row.slug,
@@ -22,8 +34,7 @@ function mapDbToProperty(row: DbProperty, images?: PropertyImage[]): Property {
     beds: row.beds,
     baths: row.baths,
     areaSqM: row.area_sq_m,
-    imageUrl: row.image_url,
-    imageAlt: row.image_alt,
+    images,
     badge: row.badge ?? undefined,
     badgeType: row.badge_type ?? undefined,
     isFeatured: row.is_featured ?? false,
@@ -34,15 +45,6 @@ function mapDbToProperty(row: DbProperty, images?: PropertyImage[]): Property {
     agentName: row.agent_name ?? undefined,
     agentImageUrl: row.agent_image_url ?? undefined,
     amenities: row.amenities ?? undefined,
-    images: images && images.length > 0 ? images : [
-      {
-        id: `img-${row.id}-0`,
-        propertyId: row.id,
-        url: row.image_url,
-        alt: row.image_alt,
-        displayOrder: 0,
-      },
-    ],
   };
 }
 
@@ -59,7 +61,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
     return [];
   }
 
-  return (data ?? []).map((row) => mapDbToProperty(row));
+  return (data ?? []).map(mapDbToProperty);
 }
 
 export interface MarketPropertiesResult {
@@ -125,7 +127,7 @@ export async function getMarketProperties({
   const totalPages = Math.ceil(totalCount / MARKET_PAGE_SIZE);
 
   return {
-    properties: (data ?? []).map((row) => mapDbToProperty(row)),
+    properties: (data ?? []).map(mapDbToProperty),
     totalCount,
     totalPages,
     currentPage: page,
@@ -133,7 +135,7 @@ export async function getMarketProperties({
 }
 
 /**
- * Fetch a single property by its friendly slug, including its image collection.
+ * Fetch a single property by its friendly slug using the images array column.
  */
 export async function getPropertyBySlug(slug: string): Promise<Property | null> {
   const { data: propertyRow, error: propError } = await supabase
@@ -147,26 +149,7 @@ export async function getPropertyBySlug(slug: string): Promise<Property | null> 
     return null;
   }
 
-  // Fetch all images for this property
-  const { data: imageRows, error: imgError } = await supabase
-    .from('property_images')
-    .select('*')
-    .eq('property_id', propertyRow.id)
-    .order('display_order', { ascending: true });
-
-  if (imgError) {
-    console.error('[getPropertyBySlug] Error fetching property images:', imgError.message);
-  }
-
-  const images: PropertyImage[] = (imageRows ?? []).map((img: DbPropertyImage) => ({
-    id: img.id,
-    propertyId: img.property_id,
-    url: img.url,
-    alt: img.alt,
-    displayOrder: img.display_order,
-  }));
-
-  return mapDbToProperty(propertyRow, images);
+  return mapDbToProperty(propertyRow);
 }
 
 /**

@@ -19,8 +19,9 @@ export type Database = {
           category: Database['public']['Enums']['property_category']
           created_at: string | null
           id: string
-          image_alt: string
-          image_url: string
+          image_alt: string | null
+          image_url: string | null
+          images: string[]
           is_featured: boolean | null
           location: string
           price: number
@@ -45,8 +46,9 @@ export type Database = {
           category: Database['public']['Enums']['property_category']
           created_at?: string | null
           id: string
-          image_alt: string
-          image_url: string
+          image_alt?: string | null
+          image_url?: string | null
+          images?: string[]
           is_featured?: boolean | null
           location: string
           price: number
@@ -71,8 +73,9 @@ export type Database = {
           category?: Database['public']['Enums']['property_category']
           created_at?: string | null
           id?: string
-          image_alt?: string
-          image_url?: string
+          image_alt?: string | null
+          image_url?: string | null
+          images?: string[]
           is_featured?: boolean | null
           location?: string
           price?: number
@@ -89,41 +92,6 @@ export type Database = {
           amenities?: string[] | null
         }
         Relationships: []
-      }
-      property_images: {
-        Row: {
-          id: string
-          property_id: string
-          url: string
-          alt: string
-          display_order: number
-          created_at: string | null
-        }
-        Insert: {
-          id?: string
-          property_id: string
-          url: string
-          alt?: string
-          display_order?: number
-          created_at?: string | null
-        }
-        Update: {
-          id?: string
-          property_id?: string
-          url?: string
-          alt?: string
-          display_order?: number
-          created_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "property_images_property_id_fkey"
-            columns: ["property_id"]
-            isOneToOne: false
-            referencedRelation: "properties"
-            referencedColumns: ["id"]
-          }
-        ]
       }
     }
     Views: {
