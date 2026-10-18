@@ -8,7 +8,6 @@
   --color-hint-of-green: #D9ECC8;
   --color-clear-day: #EEF6F6;
   --color-background-light: #EEF6F6;
-  --color-background-dark: #0f231f;
   --color-primary: #06f9d0;
 
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
@@ -19,6 +18,7 @@
 }
 
 :root {
+  color-scheme: light;
   --background: #EEF6F6;
   --foreground: #19322F;
 }

@@ -19,7 +19,7 @@ export default function FeaturedSection({
     <section className="mb-16">
       <div className="flex items-end justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-light text-[#19322F] dark:text-white">
+          <h2 className="text-2xl font-light text-[#19322F]">
             Featured Collections
           </h2>
           <p className="text-[#5C706D] mt-1 text-sm">
