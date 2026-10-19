@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
-import { LOCALE_COOKIE_NAME, DEFAULT_LOCALE, Locale, SUPPORTED_LOCALES } from "@/lib/i18n";
+import { DEFAULT_LOCALE } from "@/lib/i18n";
 import { I18nProvider } from "@/components/providers/I18nProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,16 +15,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let locale: Locale = DEFAULT_LOCALE;
-  try {
-    const cookieStore = await cookies();
-    const cookieVal = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
-    if (cookieVal && (SUPPORTED_LOCALES as readonly string[]).includes(cookieVal)) {
-      locale = cookieVal as Locale;
-    }
-  } catch {
-    // Fallback if rendered outside request context
-  }
+  const locale = DEFAULT_LOCALE;
 
   return (
     <html lang={locale} className="light" style={{ colorScheme: 'light' }}>
@@ -44,7 +35,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-screen bg-[#EEF6F6] text-[#19322F] antialiased selection:bg-[#006655] selection:text-white">
         <I18nProvider initialLocale={locale}>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </I18nProvider>
       </body>
     </html>

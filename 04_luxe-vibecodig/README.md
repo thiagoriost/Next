@@ -20,6 +20,19 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Authentication setup
+
+Set `NEXT_PUBLIC_SUPABASE_URL` and either `NEXT_PUBLIC_SUPABASE_ANON_KEY` or
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `.env.local`. In the Supabase dashboard,
+enable Google and Facebook under **Authentication → Sign In / Providers**, and
+configure their provider credentials there. Enable the phone provider and configure
+an SMS delivery service for phone verification.
+
+Add `http://localhost:3000/auth/callback` to the Supabase project's
+**Authentication → URL Configuration → Redirect URLs** list. Add the deployed
+site's `/auth/callback` URL there as well. Provider credentials and SMS settings
+are managed by Supabase and do not belong in client-side environment variables.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

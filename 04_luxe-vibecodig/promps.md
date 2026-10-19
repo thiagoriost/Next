@@ -1,10 +1,11 @@
 Necesito que crees un archivo llamado "best-practices.md" en la carpeta "antigravity".
 Ese archivo contendra las buenas practicas que debes de buscar  en aplicaciones de Next,js que se dediquen a la venta de vienes raices, necesito bullet points, buenas practicas, recomendaciones e ideas.
+/////////////////
 
 Vamos a crear la base de datos es supabase, usa el MCP de supabase.
 Crea las propiedades en base de datos y tambien necesito que en el homeScreen tengamos una paginacion de las propiedades
 la logica de la paginacion se debe ejecutar del lado del servidor usando funciones de NextJS
-
+/////////////////////////////
 Vamos a hacer que la aplicacion sea multilingual, necesitamos que la aplicacion se pueda ejecutar en español e ingles.
 se necesita que grabes una cookie para guardar el idioma seleccionado, con un tiempo de expiracion de 30 dias.
 Cuando el usuario cambie el idioma, se debe guardar la cookie y recargar la pagina.
@@ -25,3 +26,21 @@ tambien necesitamos que los textos de los resultados de busqueda se muestren en 
 - Crea los archivos de traducciones para poder agregar otros idiomas en el futuro. Por ahora solo ingles y español.
 - Quiero que agregues en el footer los idiomas disponibles para cambiar el idioma, ingles y español.
 - Quiero que agregues en el nav bar los idiomas disponibles para cambiar el idioma, ingles y español.
+
+/////////////////////////////////////////////
+Para ejecutar la migración sin exponer credenciales, desde PowerShell:
+Set-Location E:\software\NEXT\04_luxe-vibecodig
+npx supabase login
+npx supabase link --project-ref <ID-del-proyecto>
+npx supabase db push
+
+//////////////////////////////////////////////////
+
+Crea el diseño de registro para que luzca exactamente igual a @code.html, o guiate con la imagen adjunta
+Coloca un boton con el avatar en el NavBar en caso de que el usuario este logueado, si no esta logueado, coloca un boton que diga "Login" para entrar a la pagina de login. Si esta logueado sobre el mismo boton debe mostrar la interfaz y logica para hacer el logout.
+Implementa la autenticacion empleando los servicios de facebook, telefono y google sign in desde supabase auth.
+Yo proveere las configuraciones de google, facebook y telefono.
+
+
+
+/////////////////////////////////////////////////////

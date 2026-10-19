@@ -1,6 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+} from 'react';
 import {
   Locale,
   Translations,
@@ -16,6 +21,8 @@ interface I18nContextValue {
   changeLanguage: (newLocale: Locale) => void;
 }
 
+const subscribeToLocale = () => () => {};
+
 const I18nContext = createContext<I18nContextValue>({
   locale: DEFAULT_LOCALE,
   t: getDictionary(DEFAULT_LOCALE),
@@ -29,14 +36,15 @@ export function I18nProvider({
   children: React.ReactNode;
   initialLocale?: Locale;
 }) {
-  const [locale, setLocale] = useState<Locale>(initialLocale);
+  const locale = useSyncExternalStore(
+    subscribeToLocale,
+    getClientLocale,
+    () => initialLocale,
+  );
 
   useEffect(() => {
-    const detected = getClientLocale();
-    if (detected !== locale) {
-      setLocale(detected);
-    }
-  }, []);
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   const handleLanguageChange = (newLocale: Locale) => {
     setLanguageAndReload(newLocale);
