@@ -160,7 +160,7 @@ export async function getMarketProperties({
     console.error('[getMarketProperties] Supabase error:', error.message);
     // Fallback to in-memory data
     const { ALL_MARKET_PROPERTIES } = await import('@/data/properties');
-    let filtered = ALL_MARKET_PROPERTIES.filter((p) => {
+    const filtered = ALL_MARKET_PROPERTIES.filter((p) => {
       if (category && category !== 'All') {
         const target = category === 'Condo' ? 'Apartment' : category === 'Townhouse' ? 'House' : category;
         if (p.category !== target) return false;
