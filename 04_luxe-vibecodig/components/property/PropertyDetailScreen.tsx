@@ -14,7 +14,8 @@ interface PropertyDetailScreenProps {
 }
 
 export default function PropertyDetailScreen({ property }: PropertyDetailScreenProps) {
-  const { t } = useI18n();
+
+  const { locale, t } = useI18n(); // t = diccionarioDeTraducciones
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
   const [isMortgageModalOpen, setIsMortgageModalOpen] = useState(false);
@@ -45,10 +46,14 @@ export default function PropertyDetailScreen({ property }: PropertyDetailScreenP
     'Wine Cellar',
   ];
 
+  const selectedAmenities =
+    locale === 'es' ? property.amenitiesEs : property.amenities;
   const amenitiesList =
-    property.amenities && property.amenities.length > 0
-      ? property.amenities
-      : defaultAmenities;
+    selectedAmenities && selectedAmenities.length > 0
+      ? selectedAmenities
+      : property.amenities && property.amenities.length > 0
+        ? property.amenities
+        : defaultAmenities;
 
   const agentName = property.agentName || 'Sarah Jenkins';
   const agentImage =
@@ -59,7 +64,12 @@ export default function PropertyDetailScreen({ property }: PropertyDetailScreenP
     '{location}',
     property.location
   );
-  const descriptionText = property.description || defaultDescription;
+  const selectedDescription =
+    locale === 'es' ? property.descriptionEs : property.description;
+  const descriptionText =
+    selectedDescription ||
+    (locale === 'es' ? property.description : undefined) ||
+    defaultDescription;
 
   return (
     <div className="min-h-screen bg-[#EEF6F6] text-[#19322F] selection:bg-[#006655]/20 font-sans">

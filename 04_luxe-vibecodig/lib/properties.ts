@@ -39,12 +39,14 @@ function mapDbToProperty(row: DbProperty): Property {
     badgeType: row.badge_type ?? undefined,
     isFeatured: row.is_featured ?? false,
     description: row.description ?? undefined,
+    descriptionEs: row.description_es ?? undefined,
     lat: row.lat ?? undefined,
     lng: row.lng ?? undefined,
     parkingSpots: row.parking_spots ?? undefined,
     agentName: row.agent_name ?? undefined,
     agentImageUrl: row.agent_image_url ?? undefined,
     amenities: row.amenities ?? undefined,
+    amenitiesEs: row.amenities_es ?? undefined,
   };
 }
 

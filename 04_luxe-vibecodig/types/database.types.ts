@@ -30,12 +30,14 @@ export type Database = {
           type: Database['public']['Enums']['property_type']
           slug: string
           description: string | null
+          description_es: string | null
           lat: number | null
           lng: number | null
           parking_spots: number | null
           agent_name: string | null
           agent_image_url: string | null
           amenities: string[] | null
+          amenities_es: string[] | null
         }
         Insert: {
           area_sq_m: number
@@ -57,12 +59,14 @@ export type Database = {
           type: Database['public']['Enums']['property_type']
           slug: string
           description?: string | null
+          description_es?: string | null
           lat?: number | null
           lng?: number | null
           parking_spots?: number | null
           agent_name?: string | null
           agent_image_url?: string | null
           amenities?: string[] | null
+          amenities_es?: string[] | null
         }
         Update: {
           area_sq_m?: number
@@ -84,12 +88,14 @@ export type Database = {
           type?: Database['public']['Enums']['property_type']
           slug?: string
           description?: string | null
+          description_es?: string | null
           lat?: number | null
           lng?: number | null
           parking_spots?: number | null
           agent_name?: string | null
           agent_image_url?: string | null
           amenities?: string[] | null
+          amenities_es?: string[] | null
         }
         Relationships: []
       }
