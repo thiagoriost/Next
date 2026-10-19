@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Property } from '@/types/property';
 import { formatPrice } from '@/data/properties';
+import { useI18n } from '@/components/providers/I18nProvider';
 
 interface PropertyCardProps {
   property: Property;
@@ -16,6 +17,7 @@ export default function PropertyCard({
   onSelect,
   className = '',
 }: PropertyCardProps) {
+  const { t } = useI18n();
   const [isFavorite, setIsFavorite] = useState(false);
 
   const toggleFavorite = (e: React.MouseEvent) => {
@@ -25,12 +27,27 @@ export default function PropertyCard({
   };
 
   const isRent = property.type === 'rent';
-  const badgeText = property.badge || (isRent ? 'FOR RENT' : 'FOR SALE');
+
+  // Localize badge if standard
+  let badgeText = property.badge;
+  if (!badgeText) {
+    badgeText = isRent ? t.common.forRent : t.common.forSale;
+  } else if (badgeText === 'FOR RENT') {
+    badgeText = t.common.forRent;
+  } else if (badgeText === 'FOR SALE') {
+    badgeText = t.common.forSale;
+  } else if (badgeText === 'FEATURED') {
+    badgeText = t.common.featuredBadge;
+  }
+
   const badgeBg = isRent ? 'bg-[#006655]/90' : 'bg-[#19322F]/90';
   const mainImage =
     property.images && property.images.length > 0
       ? property.images[0]
       : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80';
+
+  // Use localized period label (e.g. 'mo' -> 'mes' in Spanish)
+  const periodText = property.pricePeriod ? t.common.perMonth : undefined;
 
   return (
     <Link
@@ -69,9 +86,9 @@ export default function PropertyCard({
         <div className="flex justify-between items-baseline mb-2">
           <h3 className="font-bold text-lg text-[#19322F]">
             {formatPrice(property.price)}
-            {property.pricePeriod && (
+            {periodText && (
               <span className="text-sm font-normal text-[#5C706D]">
-                /{property.pricePeriod}
+                /{periodText}
               </span>
             )}
           </h3>
@@ -88,13 +105,13 @@ export default function PropertyCard({
             <span className="material-icons text-sm text-[#006655]/80">
               king_bed
             </span>{' '}
-            {property.beds}
+            {property.beds} {t.common.beds}
           </div>
           <div className="flex items-center gap-1 text-[#5C706D] text-xs">
             <span className="material-icons text-sm text-[#006655]/80">
               bathtub
             </span>{' '}
-            {property.baths}
+            {property.baths} {t.common.baths}
           </div>
           <div className="flex items-center gap-1 text-[#5C706D] text-xs">
             <span className="material-icons text-sm text-[#006655]/80">

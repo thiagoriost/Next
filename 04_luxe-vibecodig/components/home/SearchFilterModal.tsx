@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { ALL_PROPERTIES } from '@/data/properties';
-
+import { useI18n } from '@/components/providers/I18nProvider';
 
 export interface FilterValues {
   location: string;
@@ -21,14 +21,16 @@ interface SearchFilterModalProps {
   onApply: (filters: FilterValues) => void;
 }
 
-const AMENITIES_LIST = [
-  { label: 'Swimming Pool', icon: 'pool' },
-  { label: 'Gym', icon: 'fitness_center' },
-  { label: 'Parking', icon: 'local_parking' },
-  { label: 'Air Conditioning', icon: 'ac_unit' },
-  { label: 'High-speed Wifi', icon: 'wifi' },
-  { label: 'Patio / Terrace', icon: 'deck' },
+const AMENITIES_CONFIG = [
+  { key: 'Swimming Pool', icon: 'pool' },
+  { key: 'Gym', icon: 'fitness_center' },
+  { key: 'Parking', icon: 'local_parking' },
+  { key: 'Air Conditioning', icon: 'ac_unit' },
+  { key: 'High-speed Wifi', icon: 'wifi' },
+  { key: 'Patio / Terrace', icon: 'deck' },
 ];
+
+const PROPERTY_TYPES_KEYS = ['All', 'House', 'Apartment', 'Condo', 'Townhouse', 'Villa', 'Penthouse'];
 
 const MAX_SLIDER_PRICE = 10000000;
 const SLIDER_STEP = 50000;
@@ -51,6 +53,8 @@ export default function SearchFilterModal({
   initialFilters,
   onApply,
 }: SearchFilterModalProps) {
+  const { t } = useI18n();
+
   const [location, setLocation] = useState<string>(initialFilters.location || '');
   const [minPrice, setMinPrice] = useState<number>(initialFilters.minPrice ?? 1200000);
   const [maxPrice, setMaxPrice] = useState<number>(initialFilters.maxPrice ?? 4500000);
@@ -120,9 +124,9 @@ export default function SearchFilterModal({
     setMaxPriceInput(val.toLocaleString('en-US'));
   };
 
-  const toggleAmenity = (amenity: string) => {
+  const toggleAmenity = (amenityKey: string) => {
     setSelectedAmenities((prev) =>
-      prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]
+      prev.includes(amenityKey) ? prev.filter((a) => a !== amenityKey) : [...prev, amenityKey]
     );
   };
 
@@ -199,14 +203,19 @@ export default function SearchFilterModal({
 
   const priceRangeDisplay =
     minPrice === 0 && maxPrice >= MAX_SLIDER_PRICE
-      ? 'Any Price'
+      ? t.filters.anyPrice
       : `${formatCurrencyCompact(minPrice)} – ${
           maxPrice >= MAX_SLIDER_PRICE ? '$10M+' : formatCurrencyCompact(maxPrice)
         }`;
 
+  const showButtonText =
+    matchingHomesCount === 1
+      ? t.filters.showSingle.replace('{count}', String(matchingHomesCount))
+      : t.filters.showMultiple.replace('{count}', String(matchingHomesCount));
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Background Image Layer to simulate app context */}
+      {/* Background Image Layer */}
       <div
         className="fixed inset-0 z-0 opacity-10 pointer-events-none"
         style={{
@@ -228,7 +237,7 @@ export default function SearchFilterModal({
         {/* Header */}
         <header className="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-gray-900 sticky top-0 z-30">
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-            Filters
+            {t.filters.title}
           </h1>
           <button
             onClick={onClose}
@@ -245,7 +254,7 @@ export default function SearchFilterModal({
           {/* Section 1: Location */}
           <section>
             <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-              Location
+              {t.filters.location}
             </label>
             <div className="relative group">
               <span className="material-icons absolute left-4 top-3.5 text-gray-400 group-focus-within:text-[#006611] transition-colors">
@@ -253,7 +262,7 @@ export default function SearchFilterModal({
               </span>
               <input
                 className="w-full pl-12 pr-4 py-3 bg-[#f5f8f6] dark:bg-gray-800 border-0 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-[#006611] focus:bg-white dark:focus:bg-gray-800 transition-all shadow-sm focus:outline-none"
-                placeholder="City, neighborhood, or address"
+                placeholder={t.filters.locationPlaceholder}
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
@@ -265,7 +274,7 @@ export default function SearchFilterModal({
           <section>
             <div className="flex justify-between items-end mb-4">
               <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Price Range
+                {t.filters.priceRange}
               </label>
               <span className="text-sm font-medium text-[#006611]">
                 {priceRangeDisplay}
@@ -293,7 +302,7 @@ export default function SearchFilterModal({
                 step={SLIDER_STEP}
                 value={minPrice}
                 onChange={handleMinSliderChange}
-                aria-label="Minimum price"
+                aria-label={t.filters.minPrice}
                 className="absolute inset-x-2 w-[calc(100%-1rem)] appearance-none bg-transparent pointer-events-none z-20 focus:outline-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#006611] [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#006611] [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:hover:scale-110"
               />
               <input
@@ -303,7 +312,7 @@ export default function SearchFilterModal({
                 step={SLIDER_STEP}
                 value={maxPrice}
                 onChange={handleMaxSliderChange}
-                aria-label="Maximum price"
+                aria-label={t.filters.maxPrice}
                 className="absolute inset-x-2 w-[calc(100%-1rem)] appearance-none bg-transparent pointer-events-none z-20 focus:outline-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#006611] [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#006611] [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:hover:scale-110"
               />
             </div>
@@ -311,7 +320,7 @@ export default function SearchFilterModal({
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-[#f5f8f6] dark:bg-gray-800 p-3 rounded-lg border border-transparent focus-within:border-[#006611]/30 transition-colors">
                 <label className="block text-[10px] text-gray-500 uppercase font-medium mb-1">
-                  Min Price
+                  {t.filters.minPrice}
                 </label>
                 <div className="flex items-center">
                   <span className="text-gray-400 mr-1">$</span>
@@ -325,7 +334,7 @@ export default function SearchFilterModal({
               </div>
               <div className="bg-[#f5f8f6] dark:bg-gray-800 p-3 rounded-lg border border-transparent focus-within:border-[#006611]/30 transition-colors">
                 <label className="block text-[10px] text-gray-500 uppercase font-medium mb-1">
-                  Max Price
+                  {t.filters.maxPrice}
                 </label>
                 <div className="flex items-center">
                   <span className="text-gray-400 mr-1">$</span>
@@ -345,7 +354,7 @@ export default function SearchFilterModal({
             {/* Property Type */}
             <div className="space-y-3">
               <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Property Type
+                {t.filters.propertyType}
               </label>
               <div className="relative">
                 <select
@@ -353,13 +362,11 @@ export default function SearchFilterModal({
                   onChange={(e) => setPropertyType(e.target.value)}
                   className="w-full bg-[#f5f8f6] dark:bg-gray-800 border-0 rounded-lg py-3 pl-4 pr-10 text-gray-900 dark:text-white appearance-none focus:ring-2 focus:ring-[#006611] cursor-pointer focus:outline-none"
                 >
-                  <option value="All">Any Type</option>
-                  <option value="House">House</option>
-                  <option value="Apartment">Apartment</option>
-                  <option value="Condo">Condo</option>
-                  <option value="Townhouse">Townhouse</option>
-                  <option value="Villa">Villa</option>
-                  <option value="Penthouse">Penthouse</option>
+                  {PROPERTY_TYPES_KEYS.map((key) => (
+                    <option key={key} value={key}>
+                      {t.filters.propertyTypeOptions[key] || key}
+                    </option>
+                  ))}
                 </select>
                 <span className="material-icons absolute right-3 top-3 text-gray-400 pointer-events-none">
                   expand_more
@@ -372,7 +379,7 @@ export default function SearchFilterModal({
               {/* Beds */}
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Bedrooms
+                  {t.filters.bedrooms}
                 </span>
                 <div className="flex items-center space-x-3 bg-[#f5f8f6] dark:bg-gray-800 rounded-full p-1">
                   <button
@@ -384,7 +391,7 @@ export default function SearchFilterModal({
                     <span className="material-icons text-base">remove</span>
                   </button>
                   <span className="text-sm font-semibold w-6 text-center text-gray-900 dark:text-white">
-                    {beds === 0 ? 'Any' : `${beds}+`}
+                    {beds === 0 ? t.filters.any : `${beds}+`}
                   </span>
                   <button
                     type="button"
@@ -399,7 +406,7 @@ export default function SearchFilterModal({
               {/* Baths */}
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Bathrooms
+                  {t.filters.bathrooms}
                 </span>
                 <div className="flex items-center space-x-3 bg-[#f5f8f6] dark:bg-gray-800 rounded-full p-1">
                   <button
@@ -411,7 +418,7 @@ export default function SearchFilterModal({
                     <span className="material-icons text-base">remove</span>
                   </button>
                   <span className="text-sm font-semibold w-6 text-center text-gray-900 dark:text-white">
-                    {baths === 0 ? 'Any' : `${baths}+`}
+                    {baths === 0 ? t.filters.any : `${baths}+`}
                   </span>
                   <button
                     type="button"
@@ -428,16 +435,17 @@ export default function SearchFilterModal({
           {/* Section 4: Amenities */}
           <section>
             <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
-              Amenities &amp; Features
+              {t.filters.amenities}
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {AMENITIES_LIST.map((item) => {
-                const isChecked = selectedAmenities.includes(item.label);
+              {AMENITIES_CONFIG.map((item) => {
+                const isChecked = selectedAmenities.includes(item.key);
+                const localizedLabel = t.filters.amenityNames[item.key] || item.key;
                 return (
-                  <label key={item.label} className="cursor-pointer group relative">
+                  <label key={item.key} className="cursor-pointer group relative">
                     <input
                       checked={isChecked}
-                      onChange={() => toggleAmenity(item.label)}
+                      onChange={() => toggleAmenity(item.key)}
                       className="peer sr-only"
                       type="checkbox"
                     />
@@ -457,7 +465,7 @@ export default function SearchFilterModal({
                       >
                         {item.icon}
                       </span>
-                      {item.label}
+                      {localizedLabel}
                     </div>
                     {isChecked && (
                       <div className="absolute top-2 right-2 w-2 h-2 bg-[#006611] rounded-full opacity-100 transition-opacity"></div>
@@ -476,14 +484,14 @@ export default function SearchFilterModal({
             onClick={handleClearAll}
             className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors underline decoration-gray-300 underline-offset-4 cursor-pointer"
           >
-            Clear all filters
+            {t.filters.clearAll}
           </button>
           <button
             type="button"
             onClick={handleApply}
             className="bg-[#006611] hover:bg-[#006611]/90 text-white px-8 py-3 rounded-lg font-medium shadow-lg shadow-[#006611]/30 transition-all hover:shadow-[#006611]/40 flex items-center gap-2 transform active:scale-95 cursor-pointer"
           >
-            Show {matchingHomesCount} {matchingHomesCount === 1 ? 'Home' : 'Homes'}
+            {showButtonText}
             <span className="material-icons text-sm">arrow_forward</span>
           </button>
         </footer>

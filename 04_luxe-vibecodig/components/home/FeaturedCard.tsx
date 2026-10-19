@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Property } from '@/types/property';
 import { formatPrice } from '@/data/properties';
+import { useI18n } from '@/components/providers/I18nProvider';
 
 interface FeaturedCardProps {
   property: Property;
@@ -11,6 +12,7 @@ interface FeaturedCardProps {
 }
 
 export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) {
+  const { t } = useI18n();
   const [isFavorite, setIsFavorite] = useState(false);
 
   const toggleFavorite = (e: React.MouseEvent) => {
@@ -23,6 +25,18 @@ export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) 
     property.images && property.images.length > 0
       ? property.images[0]
       : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80';
+
+  let badgeText = property.badge;
+  if (badgeText === 'FEATURED') {
+    badgeText = t.common.featuredBadge;
+  } else if (badgeText === 'FOR RENT') {
+    badgeText = t.common.forRent;
+  } else if (badgeText === 'FOR SALE') {
+    badgeText = t.common.forSale;
+  }
+
+  // Use localized period label for display (e.g. 'mo' -> 'mes' in Spanish)
+  const periodDisplayText = property.pricePeriod ? t.common.perMonth : undefined;
 
   return (
     <Link
@@ -39,9 +53,9 @@ export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) 
         />
 
         {/* Badge */}
-        {property.badge && (
+        {badgeText && (
           <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-[#19322F] shadow-sm">
-            {property.badge}
+            {badgeText}
           </div>
         )}
 
@@ -73,17 +87,17 @@ export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) 
             </p>
           </div>
           <span className="text-xl font-semibold text-[#006655]">
-            {formatPrice(property.price, property.pricePeriod)}
+            {formatPrice(property.price)}{periodDisplayText ? `/${periodDisplayText}` : ''}
           </span>
         </div>
 
         {/* Property Features */}
         <div className="flex items-center gap-6 mt-6 pt-6 border-t border-[#19322F]/5">
           <div className="flex items-center gap-2 text-[#5C706D] text-sm">
-            <span className="material-icons text-lg">king_bed</span> {property.beds} Beds
+            <span className="material-icons text-lg">king_bed</span> {property.beds} {t.common.beds}
           </div>
           <div className="flex items-center gap-2 text-[#5C706D] text-sm">
-            <span className="material-icons text-lg">bathtub</span> {property.baths} Baths
+            <span className="material-icons text-lg">bathtub</span> {property.baths} {t.common.baths}
           </div>
           <div className="flex items-center gap-2 text-[#5C706D] text-sm">
             <span className="material-icons text-lg">square_foot</span>{' '}

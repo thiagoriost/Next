@@ -1,19 +1,33 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { LOCALE_COOKIE_NAME, DEFAULT_LOCALE, Locale, SUPPORTED_LOCALES } from "@/lib/i18n";
+import { I18nProvider } from "@/components/providers/I18nProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "LuxeEstate — Find your sanctuary",
+  title: "Luxury Properties | LuxeEstate",
   description:
     "Curated luxury real estate properties for the discerning eye. Discover exclusive houses, apartments, penthouses, and villas.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let locale: Locale = DEFAULT_LOCALE;
+  try {
+    const cookieStore = await cookies();
+    const cookieVal = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
+    if (cookieVal && (SUPPORTED_LOCALES as readonly string[]).includes(cookieVal)) {
+      locale = cookieVal as Locale;
+    }
+  } catch {
+    // Fallback if rendered outside request context
+  }
+
   return (
-    <html lang="en" className="light" style={{ colorScheme: 'light' }}>
+    <html lang={locale} className="light" style={{ colorScheme: 'light' }}>
       <head>
         <link
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -29,7 +43,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-[#EEF6F6] text-[#19322F] antialiased selection:bg-[#006655] selection:text-white">
-        {children}
+        <I18nProvider initialLocale={locale}>
+          {children}
+        </I18nProvider>
       </body>
     </html>
   );

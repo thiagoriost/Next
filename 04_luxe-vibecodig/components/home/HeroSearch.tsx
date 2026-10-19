@@ -4,6 +4,8 @@ import React, { FormEvent, useState } from 'react';
 import { PropertyCategory } from '@/types/property';
 import { PROPERTY_CATEGORIES } from '@/data/properties';
 import SearchFilterModal, { FilterValues } from './SearchFilterModal';
+import { useI18n } from '@/components/providers/I18nProvider';
+import LanguageDropdown from '@/components/common/LanguageDropdown';
 
 export interface HeroSearchFilterValues {
   minPrice?: number;
@@ -32,6 +34,7 @@ export default function HeroSearch({
   onApplyFilters,
   onFilterClick,
 }: HeroSearchProps) {
+  const { t } = useI18n();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   const handleSubmit = (e: FormEvent) => {
@@ -61,20 +64,37 @@ export default function HeroSearch({
     (filterValues?.amenities && filterValues.amenities.length > 0 ? 1 : 0);
 
   return (
-    <section className="py-12 md:py-16">
-      <div className="max-w-3xl mx-auto text-center space-y-8">
-        {/* Main Title */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-[#19322F] leading-tight">
-          Find your{' '}
-          <span className="relative inline-block">
-            <span className="relative z-10 font-medium">sanctuary</span>
-            <span className="absolute bottom-2 left-0 w-full h-3 bg-[#006655]/20 -rotate-1 z-0"></span>
-          </span>
-          .
-        </h1>
+    <section className="pt-8 pb-12 md:pt-12 md:pb-16">
+      <div className="max-w-3xl mx-auto text-center space-y-6">
+        {/* Prominent Language Selector for HomeScreen */}
+        {/* <div className="flex justify-center items-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#006655]/15 shadow-sm text-xs text-[#5C706D]">
+            <span className="material-icons text-sm text-[#006655]">translate</span>
+            <span className="font-medium text-[#19322F]">
+              {t.footer.availableLanguages}:
+            </span>
+            <LanguageDropdown variant="minimal" showLabel={true} />
+          </div>
+        </div> */}
+
+        {/* Main Title & Subtitle as requested */}
+        <div className="space-y-3">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-[#19322F] leading-tight">
+            {t.home.pageTitle}{' '}
+            <span className="relative inline-block">
+              <span className="relative z-10 font-medium">
+                {t.home.pageTitleHighlight}
+              </span>
+              <span className="absolute bottom-2 left-0 w-full h-3 bg-[#006655]/20 -rotate-1 z-0"></span>
+            </span>
+          </h1>
+          <p className="text-lg md:text-xl text-[#5C706D] font-normal tracking-wide">
+            {t.home.pageSubtitle}
+          </p>
+        </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleSubmit} className="relative group max-w-2xl mx-auto">
+        <form onSubmit={handleSubmit} className="relative group max-w-2xl mx-auto pt-2">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <span className="material-icons text-[#5C706D] text-2xl group-focus-within:text-[#006655] transition-colors">
               search
@@ -85,13 +105,13 @@ export default function HeroSearch({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="block w-full pl-12 pr-28 py-4 rounded-xl border-none bg-white text-[#19322F] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] placeholder-[#5C706D]/60 focus:ring-2 focus:ring-[#006655] focus:outline-none focus:bg-white transition-all text-lg"
-            placeholder="Search by city, neighborhood, or address..."
+            placeholder={t.home.searchPlaceholder}
           />
           <button
             type="submit"
             className="absolute inset-y-2 right-2 px-6 bg-[#006655] hover:bg-[#006655]/90 text-white font-medium rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-[#006655]/20 cursor-pointer"
           >
-            Search
+            {t.home.searchButton}
           </button>
         </form>
 
@@ -99,6 +119,8 @@ export default function HeroSearch({
         <div className="flex items-center justify-center gap-3 overflow-x-auto hide-scroll py-2 px-4 -mx-4">
           {PROPERTY_CATEGORIES.map((category) => {
             const isSelected = selectedCategory === category;
+            const categoryLabel =
+              t.home.categories[category as keyof typeof t.home.categories] || category;
             return (
               <button
                 key={category}
@@ -110,7 +132,7 @@ export default function HeroSearch({
                     : 'whitespace-nowrap px-5 py-2 rounded-full bg-white border border-[#19322F]/5 text-[#5C706D] hover:text-[#19322F] hover:border-[#006655]/50 text-sm font-medium transition-all hover:bg-[#006655]/5 cursor-pointer'
                 }
               >
-                {category}
+                {categoryLabel}
               </button>
             );
           })}
@@ -127,7 +149,7 @@ export default function HeroSearch({
             }`}
           >
             <span className="material-icons text-base">tune</span>
-            Filters
+            {t.home.filtersButton}
             {activeFiltersCount > 0 && (
               <span className="ml-0.5 w-5 h-5 rounded-full bg-white text-[#006611] text-xs flex items-center justify-center font-bold">
                 {activeFiltersCount}

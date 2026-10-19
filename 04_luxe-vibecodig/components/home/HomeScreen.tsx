@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import HeroSearch from '@/components/home/HeroSearch';
 import FeaturedSection from '@/components/home/FeaturedSection';
 import NewInMarketSection from '@/components/home/NewInMarketSection';
@@ -163,44 +164,49 @@ export default function HomeScreen({
   });
 
   return (
-    <div className="min-h-screen bg-[#EEF6F6] text-[#19322F] font-sans antialiased selection:bg-[#006655] selection:text-white transition-colors">
-      {/* Navigation */}
-      <Navbar
-        activeTab={activeNavTab}
-        onTabChange={handleNavTabChange}
-      />
-
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        {/* Hero & Search Section */}
-        <HeroSearch
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          selectedCategory={selectedCategory}
-          onSelectCategory={handleCategoryChange}
-          filterValues={{
-            minPrice,
-            maxPrice,
-            beds,
-            baths,
-            amenities,
-          }}
-          onApplyFilters={handleApplyFilters}
+    <div className="min-h-screen bg-[#EEF6F6] text-[#19322F] font-sans antialiased selection:bg-[#006655] selection:text-white transition-colors flex flex-col justify-between">
+      <div>
+        {/* Navigation */}
+        <Navbar
+          activeTab={activeNavTab}
+          onTabChange={handleNavTabChange}
         />
 
-        {/* Featured Collections Section */}
-        <FeaturedSection properties={filteredFeatured} />
+        {/* Main Content Area */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          {/* Hero & Search Section */}
+          <HeroSearch
+            searchQuery={searchQuery}
+            onSearchChange={handleSearchChange}
+            selectedCategory={selectedCategory}
+            onSelectCategory={handleCategoryChange}
+            filterValues={{
+              minPrice,
+              maxPrice,
+              beds,
+              baths,
+              amenities,
+            }}
+            onApplyFilters={handleApplyFilters}
+          />
 
-        {/* New in Market Section — server-paginated */}
-        <NewInMarketSection
-          properties={marketProperties}
-          marketFilter={marketFilter}
-          onMarketFilterChange={handleMarketFilterChange}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalCount={totalCount}
-        />
-      </main>
+          {/* Featured Collections Section */}
+          <FeaturedSection properties={filteredFeatured} />
+
+          {/* New in Market Section — server-paginated */}
+          <NewInMarketSection
+            properties={marketProperties}
+            marketFilter={marketFilter}
+            onMarketFilterChange={handleMarketFilterChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={totalCount}
+          />
+        </main>
+      </div>
+
+      {/* Localized Footer with language switchers */}
+      <Footer />
     </div>
   );
 }
