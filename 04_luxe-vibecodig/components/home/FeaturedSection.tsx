@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import { Property } from '@/types/property';
 import FeaturedCard from './FeaturedCard';
+import { useI18n } from '@/components/providers/I18nProvider';
 
 interface FeaturedSectionProps {
   properties: Property[];
@@ -13,6 +16,8 @@ export default function FeaturedSection({
   onPropertySelect,
   onViewAll,
 }: FeaturedSectionProps) {
+  const { t } = useI18n();
+
   if (properties.length === 0) return null;
 
   return (
@@ -20,17 +25,17 @@ export default function FeaturedSection({
       <div className="flex items-end justify-between mb-8">
         <div>
           <h2 className="text-2xl font-light text-[#19322F]">
-            Featured Collections
+            {t.home.featuredTitle}
           </h2>
           <p className="text-[#5C706D] mt-1 text-sm">
-            Curated properties for the discerning eye.
+            {t.home.featuredSubtitle}
           </p>
         </div>
         <button
           onClick={onViewAll}
           className="hidden sm:flex items-center gap-1 text-sm font-medium text-[#006655] hover:opacity-70 transition-opacity cursor-pointer"
         >
-          View all <span className="material-icons text-sm">arrow_forward</span>
+          {t.home.viewAll} <span className="material-icons text-sm">arrow_forward</span>
         </button>
       </div>
 

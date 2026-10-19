@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback } from 'react';
+import { useI18n } from '@/components/providers/I18nProvider';
 
 interface PaginationProps {
   currentPage: number;
@@ -17,6 +18,7 @@ export default function Pagination({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { t, locale } = useI18n();
 
   const navigatePage = useCallback(
     (page: number) => {
@@ -60,10 +62,14 @@ export default function Pagination({
 
   return (
     <div className="mt-12 flex flex-col items-center gap-4">
-      {/* Count label */}
+      {/* Count label with 'Showing' / 'Mostrando' */}
       <p className="text-sm text-[#5C706D]">
-        Showing page <span className="font-semibold text-[#19322F]">{currentPage}</span> of{' '}
-        <span className="font-semibold text-[#19322F]">{totalPages}</span> — {totalCount} properties total
+        {t.home.showing}{' '}
+        <span className="font-normal">{t.home.pageOf}</span>{' '}
+        <span className="font-semibold text-[#19322F]">{currentPage}</span>{' '}
+        {locale === 'es' ? 'de' : 'of'}{' '}
+        <span className="font-semibold text-[#19322F]">{totalPages}</span>{' '}
+        — {totalCount} {t.home.propertiesTotal}
       </p>
 
       {/* Page buttons */}
@@ -72,7 +78,7 @@ export default function Pagination({
         <button
           onClick={() => navigatePage(currentPage - 1)}
           disabled={currentPage === 1}
-          aria-label="Previous page"
+          aria-label={t.home.previousPage}
           className="flex items-center justify-center w-9 h-9 rounded-lg border border-[#19322F]/10 bg-white text-[#5C706D] hover:border-[#006655] hover:text-[#006655] transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -106,7 +112,7 @@ export default function Pagination({
         <button
           onClick={() => navigatePage(currentPage + 1)}
           disabled={currentPage === totalPages}
-          aria-label="Next page"
+          aria-label={t.home.nextPage}
           className="flex items-center justify-center w-9 h-9 rounded-lg border border-[#19322F]/10 bg-white text-[#5C706D] hover:border-[#006655] hover:text-[#006655] transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

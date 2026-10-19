@@ -3,6 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/components/providers/I18nProvider';
+import LanguageDropdown from '@/components/common/LanguageDropdown';
+import { SUPPORTED_LOCALES, localeDetails, Locale } from '@/lib/i18n';
 
 interface NavbarProps {
   activeTab?: string;
@@ -14,20 +17,33 @@ export default function Navbar({
   onTabChange,
 }: NavbarProps) {
   const router = useRouter();
+  const { locale, t, changeLanguage } = useI18n();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navItems = ['Buy', 'Rent', 'Sell', 'Saved Homes'];
 
-  const handleNavClick = (item: string) => {
+  const navItems = [
+    { key: 'Buy', label: t.navbar.buy },
+    { key: 'Rent', label: t.navbar.rent },
+    { key: 'Sell', label: t.navbar.sell },
+    { key: 'Saved Homes', label: t.navbar.savedHomes },
+  ];
+
+  const handleNavClick = (key: string) => {
     if (onTabChange) {
-      onTabChange(item);
+      onTabChange(key);
     } else {
-      if (item === 'Buy') {
+      if (key === 'Buy') {
         router.push('/?marketType=Buy');
-      } else if (item === 'Rent') {
+      } else if (key === 'Rent') {
         router.push('/?marketType=Rent');
       } else {
         router.push('/');
       }
+    }
+  };
+
+  const handleMobileLanguageChange = (lang: Locale) => {
+    if (lang !== locale) {
+      changeLanguage(lang);
     }
   };
 
@@ -45,25 +61,25 @@ export default function Navbar({
               villa
             </span>
             <span className="font-bold text-xl tracking-tight text-[#19322F]">
-              LuxeEstate
+              {t.common.brand}
             </span>
           </Link>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-10">
             {navItems.map((item) => {
-              const isActive = activeTab === item;
+              const isActive = activeTab === item.key;
               return (
                 <button
-                  key={item}
-                  onClick={() => handleNavClick(item)}
+                  key={item.key}
+                  onClick={() => handleNavClick(item.key)}
                   className={`relative text-sm font-semibold transition-colors py-2 cursor-pointer ${
                     isActive
                       ? 'text-[#19322F]'
                       : 'text-[#19322F]/70 hover:text-[#006655]'
                   }`}
                 >
-                  {item}
+                  {item.label}
                   {isActive && (
                     <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#006655]" />
                   )}
@@ -72,17 +88,22 @@ export default function Navbar({
             })}
           </div>
 
-          {/* Right Action Icons */}
-          <div className="flex items-center gap-2">
+          {/* Right Action Icons & Language Selector */}
+          <div className="flex items-center gap-2.5">
+            {/* Desktop Language Selector */}
+            <div className="hidden sm:block mr-1">
+              <LanguageDropdown variant="pill" showLabel={true} />
+            </div>
+
             <button
-              aria-label="Search"
+              aria-label={t.navbar.searchAria}
               onClick={() => router.push('/')}
               className="p-2 text-[#19322F] hover:text-[#006655] transition-colors cursor-pointer"
             >
               <span className="material-symbols-outlined">search</span>
             </button>
             <button
-              aria-label="Notifications"
+              aria-label={t.navbar.notificationsAria}
               className="p-2 text-[#19322F] hover:text-[#006655] transition-colors relative cursor-pointer"
             >
               <span className="material-symbols-outlined">notifications</span>
@@ -91,8 +112,8 @@ export default function Navbar({
 
             {/* Profile Avatar */}
             <button
-              aria-label="User Profile"
-              className="ml-2 flex items-center gap-2 p-1 rounded-full hover:bg-[#006655]/5 transition-colors cursor-pointer"
+              aria-label={t.navbar.userProfileAria}
+              className="ml-1 flex items-center gap-2 p-1 rounded-full hover:bg-[#006655]/5 transition-colors cursor-pointer"
             >
               <div className="w-9 h-9 rounded-full bg-[#006655]/10 overflow-hidden border border-[#006655]/20">
                 <img
@@ -106,8 +127,8 @@ export default function Navbar({
             {/* Mobile Menu Hamburger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-[#19322F] hover:text-[#006655] p-1 cursor-pointer"
-              aria-label="Toggle menu"
+              className="md:hidden text-[#19322F] hover:text-[#006655] p-1 cursor-pointer ml-1"
+              aria-label={t.navbar.toggleMenuAria}
             >
               <span className="material-symbols-outlined">
                 {mobileMenuOpen ? 'close' : 'menu'}
@@ -120,17 +141,18 @@ export default function Navbar({
       {/* Mobile dropdown menu */}
       <div
         className={`md:hidden border-t border-[#006655]/10 bg-[#EEF6F6] overflow-hidden transition-all duration-300 ${
-          mobileMenuOpen ? 'max-h-60 py-2' : 'max-h-0'
+          mobileMenuOpen ? 'max-h-96 py-3' : 'max-h-0'
         }`}
       >
-        <div className="px-4 space-y-1">
+        <div className="px-4 space-y-2">
+          {/* Navigation Links */}
           {navItems.map((item) => {
-            const isActive = activeTab === item;
+            const isActive = activeTab === item.key;
             return (
               <button
-                key={item}
+                key={item.key}
                 onClick={() => {
-                  handleNavClick(item);
+                  handleNavClick(item.key);
                   setMobileMenuOpen(false);
                 }}
                 className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
@@ -139,10 +161,38 @@ export default function Navbar({
                     : 'text-[#19322F] hover:bg-black/5'
                 }`}
               >
-                {item}
+                {item.label}
               </button>
             );
           })}
+
+          {/* Mobile Language Switcher */}
+          <div className="pt-3 border-t border-[#006655]/10">
+            <div className="px-3 text-xs font-semibold uppercase tracking-wider text-[#5C706D] mb-2">
+              {t.footer.availableLanguages}
+            </div>
+            <div className="grid grid-cols-2 gap-2 px-1">
+              {SUPPORTED_LOCALES.map((langKey) => {
+                const details = localeDetails[langKey];
+                const isActive = locale === langKey;
+                return (
+                  <button
+                    key={langKey}
+                    type="button"
+                    onClick={() => handleMobileLanguageChange(langKey)}
+                    className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                      isActive
+                        ? 'bg-[#006655] text-white'
+                        : 'bg-white border border-[#006655]/10 text-[#19322F]'
+                    }`}
+                  >
+                    <span>{details.flag}</span>
+                    <span>{details.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </nav>

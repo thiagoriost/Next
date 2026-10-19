@@ -4,6 +4,7 @@ import React, { Suspense } from 'react';
 import { Property } from '@/types/property';
 import PropertyCard from './PropertyCard';
 import Pagination from './Pagination';
+import { useI18n } from '@/components/providers/I18nProvider';
 
 interface NewInMarketSectionProps {
   properties: Property[];
@@ -24,6 +25,7 @@ export default function NewInMarketSection({
   totalPages,
   totalCount,
 }: NewInMarketSectionProps) {
+  const { t } = useI18n();
   const filterOptions: Array<'All' | 'Buy' | 'Rent'> = ['All', 'Buy', 'Rent'];
 
   return (
@@ -32,10 +34,10 @@ export default function NewInMarketSection({
       <div className="flex items-end justify-between mb-8">
         <div>
           <h2 className="text-2xl font-light text-[#19322F]">
-            New in Market
+            {t.home.marketTitle}
           </h2>
           <p className="text-[#5C706D] mt-1 text-sm">
-            Fresh opportunities added this week.
+            {t.home.marketSubtitle}
           </p>
         </div>
 
@@ -43,6 +45,7 @@ export default function NewInMarketSection({
         <div className="hidden md:flex bg-white p-1 rounded-lg border border-[#19322F]/5">
           {filterOptions.map((option) => {
             const isSelected = marketFilter === option;
+            const label = t.home.marketTabs[option] || option;
             return (
               <button
                 key={option}
@@ -54,7 +57,7 @@ export default function NewInMarketSection({
                     : 'text-[#5C706D] hover:text-[#19322F]'
                 }`}
               >
-                {option}
+                {label}
               </button>
             );
           })}
@@ -68,10 +71,10 @@ export default function NewInMarketSection({
             search_off
           </span>
           <p className="text-lg font-medium text-[#19322F]">
-            No properties found
+            {t.home.noResults}
           </p>
           <p className="text-sm text-[#5C706D] mt-1">
-            Try adjusting your search query or filters.
+            {t.home.noResultsDesc}
           </p>
         </div>
       ) : (
@@ -86,7 +89,7 @@ export default function NewInMarketSection({
         </div>
       )}
 
-      {/* Server-side Pagination */}
+      {/* Server-side Pagination with 'Showing' / 'Mostrando' */}
       <Suspense>
         <Pagination
           currentPage={currentPage}

@@ -1,65 +1,90 @@
 import { Suspense } from 'react';
-import HomeScreen from '@/components/home/HomeScreen';
-import { getFeaturedProperties, getMarketProperties } from '@/lib/properties';
+/* import { cookies } from 'next/headers';
+import { LOCALE_COOKIE_NAME, DEFAULT_LOCALE, Locale, SUPPORTED_LOCALES, getDictionary } from '@/lib/i18n'; */
+import { getMarketProperties, getFeaturedProperties } from '@/lib/properties';
 import { PropertyCategory } from '@/types/property';
+import HomeScreen from '@/components/home/HomeScreen';
 
 interface HomePageProps {
   searchParams: Promise<{
-    page?: string;
+    q?: string;
     category?: string;
     marketType?: string;
-    q?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    beds?: string;
+    baths?: string;
+    amenities?: string;
+    page?: string;
   }>;
 }
 
-async function HomeContent({
-  searchParams,
-}: {
-  searchParams: Promise<{
-    page?: string;
-    category?: string;
-    marketType?: string;
-    q?: string;
-  }>;
-}) {
+async function HomePageInner({ searchParams }: HomePageProps) {
   const params = await searchParams;
 
-  const page = Math.max(1, parseInt(params.page ?? '1', 10));
-  const category = (params.category ?? 'All') as PropertyCategory;
-  const marketType = (params.marketType ?? 'All') as 'All' | 'Buy' | 'Rent';
-  const searchQuery = params.q ?? '';
+  // Read locale from cookie for SEO metadata
+  /* let locale: Locale = DEFAULT_LOCALE;
+  try {
+    const cookieStore = await cookies();
+    const cookieVal = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
+    if (cookieVal && (SUPPORTED_LOCALES as readonly string[]).includes(cookieVal)) {
+      locale = cookieVal as Locale;
+    }
+  } catch {
+    // Fallback
+  } */
 
-  // Parallel server fetches
-  const [featuredProperties, marketResult] = await Promise.all([
-    getFeaturedProperties(),
-    getMarketProperties({ page, category, marketType, searchQuery }),
-  ]);
+  // const t = getDictionary(locale);
+
+  const searchQuery = params.q ?? '';
+  const category = (params.category as PropertyCategory) ?? 'All';
+  const marketType = (params.marketType as 'All' | 'Buy' | 'Rent') ?? 'All';
+  const minPrice = params.minPrice ? Number(params.minPrice) : undefined;
+  const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined;
+  const beds = params.beds ? Number(params.beds) : undefined;
+  const baths = params.baths ? Number(params.baths) : undefined;
+  const amenities = params.amenities ? params.amenities.split(',') : undefined;
+  const page = params.page ? Number(params.page) : 1;
+
+  const [featuredProperties, { properties: marketProperties, totalCount, totalPages }] =
+    await Promise.all([
+      getFeaturedProperties(),
+      getMarketProperties({
+        page,
+        searchQuery,
+        category,
+        marketType,
+        minPrice,
+        maxPrice,
+        beds,
+        baths,
+        amenities,
+      }),
+    ]);
 
   return (
     <HomeScreen
       featuredProperties={featuredProperties}
-      marketProperties={marketResult.properties}
-      totalPages={marketResult.totalPages}
-      currentPage={marketResult.currentPage}
-      totalCount={marketResult.totalCount}
+      marketProperties={marketProperties}
+      totalPages={totalPages}
+      currentPage={page}
+      totalCount={totalCount}
       initialCategory={category}
       initialMarketType={marketType}
       initialSearchQuery={searchQuery}
+      initialMinPrice={minPrice}
+      initialMaxPrice={maxPrice}
+      initialBeds={beds}
+      initialBaths={baths}
+      initialAmenities={amenities}
     />
   );
 }
 
-export default function Home({ searchParams }: HomePageProps) {
+export default function HomePage(props: HomePageProps) {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-[#EEF6F6] flex flex-col items-center justify-center text-[#006655]">
-          <span className="material-icons animate-spin text-3xl mb-2">refresh</span>
-          <span className="text-sm font-medium text-[#19322F]">Loading LuxeEstate...</span>
-        </div>
-      }
-    >
-      <HomeContent searchParams={searchParams} />
+    <Suspense>
+      <HomePageInner {...props} />
     </Suspense>
   );
 }
