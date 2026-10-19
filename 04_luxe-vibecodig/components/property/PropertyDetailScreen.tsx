@@ -7,12 +7,14 @@ import PropertyGallery from './PropertyGallery';
 import PropertyMap from './PropertyMap';
 import { Property } from '@/types/property';
 import { formatPrice } from '@/data/properties';
+import { useI18n } from '@/components/providers/I18nProvider';
 
 interface PropertyDetailScreenProps {
   property: Property;
 }
 
 export default function PropertyDetailScreen({ property }: PropertyDetailScreenProps) {
+  const { t } = useI18n();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
   const [isMortgageModalOpen, setIsMortgageModalOpen] = useState(false);
@@ -53,10 +55,10 @@ export default function PropertyDetailScreen({ property }: PropertyDetailScreenP
     property.agentImageUrl ||
     'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80';
 
-  const defaultDescription = `Experience modern luxury in this architecturally stunning home located in ${property.location}. Designed with an emphasis on indoor-outdoor living, the residence features floor-to-ceiling glass walls that flood the interiors with natural light.
-
-The open-concept kitchen is equipped with top-of-the-line appliances and custom cabinetry, perfect for culinary enthusiasts. Retreat to the primary suite, a sanctuary of relaxation with a spa-inspired bath and private balcony.`;
-
+  const defaultDescription = t.propertyDetail.defaultDescription.replace(
+    '{location}',
+    property.location
+  );
   const descriptionText = property.description || defaultDescription;
 
   return (
@@ -75,14 +77,14 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
             className="hover:text-[#006655] transition-colors flex items-center gap-1 font-medium"
           >
             <span className="material-icons text-sm">home</span>
-            Home
+            {t.propertyDetail.breadcrumbHome}
           </Link>
           <span>/</span>
           <Link
             href={`/?category=${property.category}`}
             className="hover:text-[#006655] transition-colors font-medium"
           >
-            {property.category}
+            {t.home.categories[property.category]}
           </Link>
           <span>/</span>
           <span className="text-[#19322F] font-semibold truncate max-w-sm">
@@ -138,21 +140,21 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                     <h3 className="font-semibold text-[#19322F]">{agentName}</h3>
                     <div className="flex items-center gap-1 text-xs text-[#006655] font-medium">
                       <span className="material-icons text-[14px]">star</span>
-                      <span>Top Rated Agent</span>
+                      <span>{t.propertyDetail.topRatedAgent}</span>
                     </div>
                   </div>
                   <div className="ml-auto flex gap-2">
                     <button
                       type="button"
                       onClick={() => setIsVisitModalOpen(true)}
-                      aria-label="Chat with agent"
+                      aria-label={t.propertyDetail.chatWithAgent}
                       className="p-2 rounded-full bg-[#006655]/10 text-[#006655] hover:bg-[#006655] hover:text-white transition-colors cursor-pointer"
                     >
                       <span className="material-icons text-sm">chat</span>
                     </button>
                     <a
                       href="tel:+18005550199"
-                      aria-label="Call agent"
+                      aria-label={t.propertyDetail.callAgent}
                       className="p-2 rounded-full bg-[#006655]/10 text-[#006655] hover:bg-[#006655] hover:text-white transition-colors cursor-pointer"
                     >
                       <span className="material-icons text-sm">call</span>
@@ -170,7 +172,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                     <span className="material-icons text-xl group-hover:scale-110 transition-transform">
                       calendar_today
                     </span>
-                    Schedule Visit
+                    {t.propertyDetail.scheduleVisit}
                   </button>
                   <button
                     type="button"
@@ -178,7 +180,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                     className="w-full bg-transparent border border-[#19322F]/10 hover:border-[#006655] text-[#19322F]/80 hover:text-[#006655] py-4 px-6 rounded-lg font-medium transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span className="material-icons text-xl">mail_outline</span>
-                    Contact Agent
+                    {t.propertyDetail.contactAgent}
                   </button>
                 </div>
               </div>
@@ -198,7 +200,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
             {/* Property Features */}
             <div className="bg-white p-8 rounded-xl shadow-sm border border-[#006655]/5">
               <h2 className="text-lg font-semibold mb-6 text-[#19322F]">
-                Property Features
+                {t.propertyDetail.featuresTitle}
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div className="flex flex-col items-center justify-center p-4 bg-[#006655]/5 rounded-lg border border-[#006655]/10 text-center">
@@ -209,7 +211,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                     {property.areaSqM}
                   </span>
                   <span className="text-xs uppercase tracking-wider text-[#19322F]/50">
-                    Square Meters
+                    {t.propertyDetail.squareMeters}
                   </span>
                 </div>
 
@@ -221,7 +223,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                     {property.beds}
                   </span>
                   <span className="text-xs uppercase tracking-wider text-[#19322F]/50">
-                    Bedrooms
+                    {t.propertyDetail.bedrooms}
                   </span>
                 </div>
 
@@ -233,7 +235,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                     {property.baths}
                   </span>
                   <span className="text-xs uppercase tracking-wider text-[#19322F]/50">
-                    Bathrooms
+                    {t.propertyDetail.bathrooms}
                   </span>
                 </div>
 
@@ -245,7 +247,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                     {property.parkingSpots ?? 2}
                   </span>
                   <span className="text-xs uppercase tracking-wider text-[#19322F]/50">
-                    Garage
+                    {t.propertyDetail.garage}
                   </span>
                 </div>
               </div>
@@ -254,7 +256,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
             {/* About this home */}
             <div className="bg-white p-8 rounded-xl shadow-sm border border-[#006655]/5">
               <h2 className="text-lg font-semibold mb-4 text-[#19322F]">
-                About this home
+                {t.propertyDetail.aboutHome}
               </h2>
               <div
                 className={`prose prose-slate max-w-none text-[#19322F]/70 leading-relaxed transition-all ${
@@ -272,7 +274,9 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="mt-4 text-[#006655] font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all cursor-pointer"
               >
-                {isExpanded ? 'Show less' : 'Read more'}
+                {isExpanded
+                  ? t.propertyDetail.showLess
+                  : t.propertyDetail.readMore}
                 <span className="material-icons text-sm">
                   {isExpanded ? 'expand_less' : 'arrow_forward'}
                 </span>
@@ -282,7 +286,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
             {/* Amenities */}
             <div className="bg-white p-8 rounded-xl shadow-sm border border-[#006655]/5">
               <h2 className="text-lg font-semibold mb-6 text-[#19322F]">
-                Amenities
+                {t.propertyDetail.amenitiesTitle}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                 {amenitiesList.map((amenity, idx) => (
@@ -293,7 +297,9 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                     <span className="material-icons text-[#006655]/80 text-sm">
                       check_circle
                     </span>
-                    <span>{amenity}</span>
+                    <span>
+                      {t.propertyDetail.amenityNames[amenity] || amenity}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -307,14 +313,18 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                 </div>
                 <div>
                   <h3 className="font-semibold text-[#19322F]">
-                    Estimated Payment
+                    {t.propertyDetail.estimatedPayment}
                   </h3>
                   <p className="text-sm text-[#19322F]/60">
-                    Starting from{' '}
+                    {t.propertyDetail.startingFrom}{' '}
                     <strong className="text-[#006655]">
-                      ${estimatedMonthlyPayment.toLocaleString()}/mo
+                      ${estimatedMonthlyPayment.toLocaleString()}/
+                      {t.common.perMonth}
                     </strong>{' '}
-                    with {downPaymentPercent}% down
+                    {t.propertyDetail.withDownPayment.replace(
+                      '{percent}',
+                      String(downPaymentPercent)
+                    )}
                   </p>
                 </div>
               </div>
@@ -323,7 +333,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                 onClick={() => setIsMortgageModalOpen(true)}
                 className="whitespace-nowrap px-4 py-2 bg-white border border-[#19322F]/10 rounded-lg text-sm font-semibold hover:border-[#006655] transition-colors text-[#19322F] cursor-pointer shadow-xs"
               >
-                Calculate Mortgage
+                {t.propertyDetail.calculateMortgage}
               </button>
             </div>
           </div>
@@ -334,7 +344,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
       <footer className="bg-white border-t border-slate-200 mt-12 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-sm text-[#19322F]/50">
-            © 2026 LuxeEstate Inc. All rights reserved.
+            {t.footer.rightsReserved}
           </div>
           <div className="flex gap-6">
             <a
@@ -383,10 +393,12 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                   <span className="material-icons text-2xl">check</span>
                 </div>
                 <h3 className="text-xl font-semibold text-[#19322F]">
-                  Visit Request Received!
+                  {t.propertyDetail.visitRequestReceived}
                 </h3>
                 <p className="text-sm text-[#19322F]/60">
-                  {agentName} has received your request for {property.title} and will get in touch within 2 business hours.
+                  {t.propertyDetail.visitRequestConfirmation
+                    .replace('{agent}', agentName)
+                    .replace('{property}', property.title)}
                 </p>
                 <button
                   type="button"
@@ -396,16 +408,18 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                   }}
                   className="mt-4 w-full bg-[#006655] text-white py-2.5 rounded-lg font-medium"
                 >
-                  Done
+                  {t.propertyDetail.done}
                 </button>
               </div>
             ) : (
               <div>
                 <h3 className="text-xl font-semibold text-[#19322F] mb-1">
-                  Schedule a Private Tour
+                  {t.propertyDetail.schedulePrivateTour}
                 </h3>
                 <p className="text-xs text-[#19322F]/60 mb-4">
-                  Tour {property.title} with {agentName}.
+                  {t.propertyDetail.tourPropertyWithAgent
+                    .replace('{property}', property.title)
+                    .replace('{agent}', agentName)}
                 </p>
                 <form
                   onSubmit={(e) => {
@@ -416,7 +430,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                 >
                   <div>
                     <label className="block text-xs font-medium text-[#19322F] mb-1">
-                      Full Name
+                      {t.propertyDetail.fullName}
                     </label>
                     <input
                       required
@@ -427,7 +441,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[#19322F] mb-1">
-                      Email
+                      {t.propertyDetail.email}
                     </label>
                     <input
                       required
@@ -438,7 +452,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[#19322F] mb-1">
-                      Phone Number
+                      {t.propertyDetail.phoneNumber}
                     </label>
                     <input
                       required
@@ -449,7 +463,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[#19322F] mb-1">
-                      Preferred Date
+                      {t.propertyDetail.preferredDate}
                     </label>
                     <input
                       required
@@ -461,7 +475,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                     type="submit"
                     className="w-full bg-[#006655] hover:bg-[#005544] text-white py-3 rounded-lg font-medium transition-all shadow-md mt-2"
                   >
-                    Confirm Tour Request
+                    {t.propertyDetail.confirmTourRequest}
                   </button>
                 </form>
               </div>
@@ -486,39 +500,53 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
             </button>
 
             <h3 className="text-xl font-semibold text-[#19322F] mb-1">
-              Mortgage Calculator
+              {t.propertyDetail.mortgageCalculator}
             </h3>
             <p className="text-xs text-[#19322F]/60 mb-6">
-              Estimate your monthly costs for {property.title}
+              {t.propertyDetail.estimateMonthlyCosts.replace(
+                '{property}',
+                property.title
+              )}
             </p>
 
             <div className="space-y-4">
               <div className="bg-[#006655]/5 p-4 rounded-xl flex justify-between items-center">
                 <div>
-                  <span className="text-xs text-[#19322F]/60">Property Price</span>
+                  <span className="text-xs text-[#19322F]/60">
+                    {t.propertyDetail.propertyPrice}
+                  </span>
                   <div className="text-xl font-bold text-[#19322F]">
                     {formatPrice(property.price)}
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-[#19322F]/60">Monthly Est.</span>
+                  <span className="text-xs text-[#19322F]/60">
+                    {t.propertyDetail.monthlyEstimate}
+                  </span>
                   <div className="text-xl font-bold text-[#006655]">
-                    ${estimatedMonthlyPayment.toLocaleString()}/mo
+                    ${estimatedMonthlyPayment.toLocaleString()}/
+                    {t.common.perMonth}
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3 pt-2 text-sm text-[#19322F]">
                 <div className="flex justify-between py-1 border-b border-gray-100">
-                  <span className="text-[#19322F]/70">Principal & Interest</span>
+                  <span className="text-[#19322F]/70">
+                    {t.propertyDetail.principalAndInterest}
+                  </span>
                   <span className="font-semibold">${Math.round(estimatedMonthlyPayment * 0.78).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-gray-100">
-                  <span className="text-[#19322F]/70">Property Taxes (est.)</span>
+                  <span className="text-[#19322F]/70">
+                    {t.propertyDetail.propertyTaxes}
+                  </span>
                   <span className="font-semibold">${Math.round(estimatedMonthlyPayment * 0.14).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-gray-100">
-                  <span className="text-[#19322F]/70">Homeowners Insurance</span>
+                  <span className="text-[#19322F]/70">
+                    {t.propertyDetail.homeownersInsurance}
+                  </span>
                   <span className="font-semibold">${Math.round(estimatedMonthlyPayment * 0.08).toLocaleString()}</span>
                 </div>
               </div>
@@ -532,7 +560,7 @@ The open-concept kitchen is equipped with top-of-the-line appliances and custom 
                   }}
                   className="w-full bg-[#006655] hover:bg-[#005544] text-white py-3 rounded-lg font-medium transition-all shadow-md"
                 >
-                  Get Pre-Approved with Agent
+                  {t.propertyDetail.getPreApproved}
                 </button>
               </div>
             </div>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
+import { useI18n } from '@/components/providers/I18nProvider';
 
 interface PropertyMapProps {
   lat?: number | null;
@@ -15,16 +16,22 @@ const DynamicLeafletMap = dynamic(
   () => import('./LeafletMapInner'),
   {
     ssr: false,
-    loading: () => (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-[#5C706D] text-xs">
-        <span className="material-icons animate-spin text-2xl text-[#006655] mb-2">
-          refresh
-        </span>
-        Loading interactive map...
-      </div>
-    ),
+    loading: () => <MapLoading />,
   }
 );
+
+function MapLoading() {
+  const { t } = useI18n();
+
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-[#5C706D] text-xs">
+      <span className="material-icons animate-spin text-2xl text-[#006655] mb-2">
+        refresh
+      </span>
+      {t.propertyDetail.mapLoading}
+    </div>
+  );
+}
 
 export default function PropertyMap({
   lat = 37.4419,
@@ -32,6 +39,7 @@ export default function PropertyMap({
   title,
   location,
 }: PropertyMapProps) {
+  const { t } = useI18n();
   const actualLat = lat ?? 37.4419;
   const actualLng = lng ?? -122.1430;
   const externalMapUrl = `https://www.google.com/maps/search/?api=1&query=${actualLat},${actualLng}`;
@@ -52,10 +60,13 @@ export default function PropertyMap({
           target="_blank"
           rel="noopener noreferrer"
           className="absolute bottom-2 right-2 bg-white/95 backdrop-blur-sm text-xs font-medium px-2.5 py-1.5 rounded shadow-sm text-[#19322F] hover:text-[#006655] transition-colors z-20 flex items-center gap-1"
-          aria-label={`Open map for ${location} in Google Maps`}
+          aria-label={t.propertyDetail.openMapAria.replace(
+            '{location}',
+            location
+          )}
         >
           <span className="material-icons text-xs">open_in_new</span>
-          View on Map
+          {t.propertyDetail.viewOnMap}
         </a>
       </div>
     </div>

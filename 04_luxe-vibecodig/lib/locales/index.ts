@@ -12,15 +12,13 @@ export const dictionaries: Record<Locale, Translations> = {
   es,
 };
 
-export const localeDetails: Record<Locale, { name: string; flag: string; label: string }> = {
+export const localeDetails: Record<Locale, { name: string; label: string }> = {
   en: {
     name: 'English',
-    flag: '🇺🇸',
     label: 'English',
   },
   es: {
     name: 'Español',
-    flag: '🇪🇸',
     label: 'Español',
   },
 };

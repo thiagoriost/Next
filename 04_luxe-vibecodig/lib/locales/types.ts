@@ -2,7 +2,6 @@ export type Locale = 'en' | 'es';
 
 export interface Translations {
   localeName: string;
-  flag: string;
   common: {
     brand: string;
     loading: string;
@@ -82,6 +81,59 @@ export interface Translations {
     showMultiple: string;
     amenityNames: Record<string, string>;
     propertyTypeOptions: Record<string, string>;
+  };
+  propertyDetail: {
+    breadcrumbHome: string;
+    topRatedAgent: string;
+    chatWithAgent: string;
+    callAgent: string;
+    scheduleVisit: string;
+    contactAgent: string;
+    featuresTitle: string;
+    squareMeters: string;
+    bedrooms: string;
+    bathrooms: string;
+    garage: string;
+    aboutHome: string;
+    showLess: string;
+    readMore: string;
+    amenitiesTitle: string;
+    amenityNames: Record<string, string>;
+    badges: Record<string, string>;
+    estimatedPayment: string;
+    startingFrom: string;
+    withDownPayment: string;
+    calculateMortgage: string;
+    visitRequestReceived: string;
+    visitRequestConfirmation: string;
+    done: string;
+    schedulePrivateTour: string;
+    tourPropertyWithAgent: string;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    preferredDate: string;
+    confirmTourRequest: string;
+    mortgageCalculator: string;
+    estimateMonthlyCosts: string;
+    propertyPrice: string;
+    monthlyEstimate: string;
+    principalAndInterest: string;
+    propertyTaxes: string;
+    homeownersInsurance: string;
+    getPreApproved: string;
+    mapLoading: string;
+    viewOnMap: string;
+    openMapAria: string;
+    defaultDescription: string;
+    newBadge: string;
+    viewAllPhotos: string;
+    viewImage: string;
+    photoCount: string;
+    closePhotoModal: string;
+    previousPhoto: string;
+    nextPhoto: string;
+    thumbnail: string;
   };
   footer: {
     tagline: string;

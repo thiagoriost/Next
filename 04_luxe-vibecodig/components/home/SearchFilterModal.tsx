@@ -56,8 +56,8 @@ export default function SearchFilterModal({
   const { t } = useI18n();
 
   const [location, setLocation] = useState<string>(initialFilters.location || '');
-  const [minPrice, setMinPrice] = useState<number>(initialFilters.minPrice ?? 1200000);
-  const [maxPrice, setMaxPrice] = useState<number>(initialFilters.maxPrice ?? 4500000);
+  const [minPrice, setMinPrice] = useState<number>(initialFilters.minPrice ?? 0);
+  const [maxPrice, setMaxPrice] = useState<number>(initialFilters.maxPrice ?? 10000000);
   const [minPriceInput, setMinPriceInput] = useState<string>(
     (initialFilters.minPrice ?? 1200000).toLocaleString('en-US')
   );
@@ -70,7 +70,7 @@ export default function SearchFilterModal({
   const [beds, setBeds] = useState<number>(initialFilters.beds ?? 3);
   const [baths, setBaths] = useState<number>(initialFilters.baths ?? 2);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(
-    initialFilters.amenities?.length ? initialFilters.amenities : ['Swimming Pool', 'High-speed Wifi']
+    initialFilters.amenities?.length ? initialFilters.amenities : []
   );
 
   // Handle ESC key to close
@@ -159,8 +159,8 @@ export default function SearchFilterModal({
           propertyType === 'Condo'
             ? 'Apartment'
             : propertyType === 'Townhouse'
-            ? 'House'
-            : propertyType;
+              ? 'House'
+              : propertyType;
         if (p.category !== normalized) return false;
       }
 
@@ -204,9 +204,8 @@ export default function SearchFilterModal({
   const priceRangeDisplay =
     minPrice === 0 && maxPrice >= MAX_SLIDER_PRICE
       ? t.filters.anyPrice
-      : `${formatCurrencyCompact(minPrice)} – ${
-          maxPrice >= MAX_SLIDER_PRICE ? '$10M+' : formatCurrencyCompact(maxPrice)
-        }`;
+      : `${formatCurrencyCompact(minPrice)} – ${maxPrice >= MAX_SLIDER_PRICE ? '$10M+' : formatCurrencyCompact(maxPrice)
+      }`;
 
   const showButtonText =
     matchingHomesCount === 1
@@ -450,18 +449,16 @@ export default function SearchFilterModal({
                       type="checkbox"
                     />
                     <div
-                      className={`h-full px-4 py-3 rounded-lg border text-sm flex items-center justify-center gap-2 transition-all select-none ${
-                        isChecked
-                          ? 'border-[#006611] bg-[#006611]/10 text-[#006611] font-medium'
-                          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                      }`}
+                      className={`h-full px-4 py-3 rounded-lg border text-sm flex items-center justify-center gap-2 transition-all select-none ${isChecked
+                        ? 'border-[#006611] bg-[#006611]/10 text-[#006611] font-medium'
+                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                        }`}
                     >
                       <span
-                        className={`material-icons text-lg ${
-                          isChecked
-                            ? 'text-[#006611]'
-                            : 'text-gray-400 group-hover:text-gray-500'
-                        }`}
+                        className={`material-icons text-lg ${isChecked
+                          ? 'text-[#006611]'
+                          : 'text-gray-400 group-hover:text-gray-500'
+                          }`}
                       >
                         {item.icon}
                       </span>

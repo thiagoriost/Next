@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/providers/I18nProvider';
 import LanguageDropdown from '@/components/common/LanguageDropdown';
+import LanguageFlag from '@/components/common/LanguageFlag';
 import { SUPPORTED_LOCALES, localeDetails, Locale } from '@/lib/i18n';
 
 interface NavbarProps {
@@ -186,7 +187,7 @@ export default function Navbar({
                         : 'bg-white border border-[#006655]/10 text-[#19322F]'
                     }`}
                   >
-                    <span>{details.flag}</span>
+                    <LanguageFlag locale={langKey} />
                     <span>{details.name}</span>
                   </button>
                 );
