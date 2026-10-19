@@ -138,20 +138,22 @@ export default function HeroSearch({
       </div>
 
       {/* Filter Modal */}
-      <SearchFilterModal
-        isOpen={isFilterModalOpen}
-        onClose={() => setIsFilterModalOpen(false)}
-        initialFilters={{
-          location: searchQuery,
-          minPrice: filterValues?.minPrice,
-          maxPrice: filterValues?.maxPrice,
-          propertyType: selectedCategory,
-          beds: filterValues?.beds ?? 0,
-          baths: filterValues?.baths ?? 0,
-          amenities: filterValues?.amenities ?? [],
-        }}
-        onApply={handleApplyModalFilters}
-      />
+      {isFilterModalOpen && (
+        <SearchFilterModal
+          isOpen={isFilterModalOpen}
+          onClose={() => setIsFilterModalOpen(false)}
+          initialFilters={{
+            location: searchQuery,
+            minPrice: filterValues?.minPrice,
+            maxPrice: filterValues?.maxPrice,
+            propertyType: selectedCategory,
+            beds: filterValues?.beds ?? 0,
+            baths: filterValues?.baths ?? 0,
+            amenities: filterValues?.amenities ?? [],
+          }}
+          onApply={handleApplyModalFilters}
+        />
+      )}
     </section>
   );
 }

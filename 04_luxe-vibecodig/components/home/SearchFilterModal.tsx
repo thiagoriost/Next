@@ -69,27 +69,6 @@ export default function SearchFilterModal({
     initialFilters.amenities?.length ? initialFilters.amenities : ['Swimming Pool', 'High-speed Wifi']
   );
 
-  // Sync state whenever modal opens with initialFilters
-  useEffect(() => {
-    if (isOpen) {
-      const initMin = initialFilters.minPrice ?? 1200000;
-      const initMax = initialFilters.maxPrice ?? 4500000;
-      setLocation(initialFilters.location || '');
-      setMinPrice(initMin);
-      setMaxPrice(initMax);
-      setMinPriceInput(initMin.toLocaleString('en-US'));
-      setMaxPriceInput(initMax.toLocaleString('en-US'));
-      setPropertyType(initialFilters.propertyType || 'All');
-      setBeds(initialFilters.beds ?? 3);
-      setBaths(initialFilters.baths ?? 2);
-      setSelectedAmenities(
-        initialFilters.amenities?.length
-          ? initialFilters.amenities
-          : ['Swimming Pool', 'High-speed Wifi']
-      );
-    }
-  }, [isOpen, initialFilters]);
-
   // Handle ESC key to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
