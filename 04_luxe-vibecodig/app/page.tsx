@@ -9,6 +9,11 @@ interface HomePageProps {
     category?: string;
     marketType?: string;
     q?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    beds?: string;
+    baths?: string;
+    amenities?: string;
   }>;
 }
 
@@ -20,6 +25,11 @@ async function HomeContent({
     category?: string;
     marketType?: string;
     q?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    beds?: string;
+    baths?: string;
+    amenities?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -28,11 +38,26 @@ async function HomeContent({
   const category = (params.category ?? 'All') as PropertyCategory;
   const marketType = (params.marketType ?? 'All') as 'All' | 'Buy' | 'Rent';
   const searchQuery = params.q ?? '';
+  const minPrice = params.minPrice ? parseInt(params.minPrice, 10) : undefined;
+  const maxPrice = params.maxPrice ? parseInt(params.maxPrice, 10) : undefined;
+  const beds = params.beds ? parseInt(params.beds, 10) : undefined;
+  const baths = params.baths ? parseFloat(params.baths) : undefined;
+  const amenities = params.amenities ? params.amenities.split(',').filter(Boolean) : undefined;
 
   // Parallel server fetches
   const [featuredProperties, marketResult] = await Promise.all([
     getFeaturedProperties(),
-    getMarketProperties({ page, category, marketType, searchQuery }),
+    getMarketProperties({
+      page,
+      category,
+      marketType,
+      searchQuery,
+      minPrice,
+      maxPrice,
+      beds,
+      baths,
+      amenities,
+    }),
   ]);
 
   return (
@@ -45,6 +70,11 @@ async function HomeContent({
       initialCategory={category}
       initialMarketType={marketType}
       initialSearchQuery={searchQuery}
+      initialMinPrice={minPrice}
+      initialMaxPrice={maxPrice}
+      initialBeds={beds}
+      initialBaths={baths}
+      initialAmenities={amenities}
     />
   );
 }

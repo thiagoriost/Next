@@ -1,14 +1,25 @@
 'use client';
 
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { PropertyCategory } from '@/types/property';
 import { PROPERTY_CATEGORIES } from '@/data/properties';
+import SearchFilterModal, { FilterValues } from './SearchFilterModal';
+
+export interface HeroSearchFilterValues {
+  minPrice?: number;
+  maxPrice?: number;
+  beds?: number;
+  baths?: number;
+  amenities?: string[];
+}
 
 interface HeroSearchProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   selectedCategory: PropertyCategory;
   onSelectCategory: (category: PropertyCategory) => void;
+  filterValues?: HeroSearchFilterValues;
+  onApplyFilters?: (filters: FilterValues) => void;
   onFilterClick?: () => void;
 }
 
@@ -17,11 +28,37 @@ export default function HeroSearch({
   onSearchChange,
   selectedCategory,
   onSelectCategory,
+  filterValues,
+  onApplyFilters,
   onFilterClick,
 }: HeroSearchProps) {
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
   };
+
+  const handleOpenFilters = () => {
+    setIsFilterModalOpen(true);
+    onFilterClick?.();
+  };
+
+  const handleApplyModalFilters = (applied: FilterValues) => {
+    if (applied.location !== searchQuery) {
+      onSearchChange(applied.location);
+    }
+    if (applied.propertyType && applied.propertyType !== selectedCategory) {
+      onSelectCategory(applied.propertyType as PropertyCategory);
+    }
+    onApplyFilters?.(applied);
+  };
+
+  const activeFiltersCount =
+    (filterValues?.minPrice && filterValues.minPrice > 0 ? 1 : 0) +
+    (filterValues?.maxPrice && filterValues.maxPrice < 10000000 ? 1 : 0) +
+    (filterValues?.beds && filterValues.beds > 0 ? 1 : 0) +
+    (filterValues?.baths && filterValues.baths > 0 ? 1 : 0) +
+    (filterValues?.amenities && filterValues.amenities.length > 0 ? 1 : 0);
 
   return (
     <section className="py-12 md:py-16">
@@ -82,13 +119,39 @@ export default function HeroSearch({
 
           <button
             type="button"
-            onClick={onFilterClick}
-            className="whitespace-nowrap flex items-center gap-1 px-4 py-2 rounded-full text-[#19322F] font-medium text-sm hover:bg-black/5 transition-colors cursor-pointer"
+            onClick={handleOpenFilters}
+            className={`whitespace-nowrap flex items-center gap-1.5 px-4 py-2 rounded-full font-medium text-sm transition-all cursor-pointer ${
+              activeFiltersCount > 0
+                ? 'bg-[#006611] text-white shadow-md shadow-[#006611]/20 hover:bg-[#006611]/90'
+                : 'text-[#19322F] hover:bg-black/5'
+            }`}
           >
-            <span className="material-icons text-base">tune</span> Filters
+            <span className="material-icons text-base">tune</span>
+            Filters
+            {activeFiltersCount > 0 && (
+              <span className="ml-0.5 w-5 h-5 rounded-full bg-white text-[#006611] text-xs flex items-center justify-center font-bold">
+                {activeFiltersCount}
+              </span>
+            )}
           </button>
         </div>
       </div>
+
+      {/* Filter Modal */}
+      <SearchFilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        initialFilters={{
+          location: searchQuery,
+          minPrice: filterValues?.minPrice,
+          maxPrice: filterValues?.maxPrice,
+          propertyType: selectedCategory,
+          beds: filterValues?.beds ?? 0,
+          baths: filterValues?.baths ?? 0,
+          amenities: filterValues?.amenities ?? [],
+        }}
+        onApply={handleApplyModalFilters}
+      />
     </section>
   );
 }
