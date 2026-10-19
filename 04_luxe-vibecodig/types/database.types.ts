@@ -19,14 +19,23 @@ export type Database = {
           category: Database['public']['Enums']['property_category']
           created_at: string | null
           id: string
-          image_alt: string
-          image_url: string
+          image_alt: string | null
+          image_url: string | null
+          images: string[]
           is_featured: boolean | null
           location: string
           price: number
           price_period: Database['public']['Enums']['price_period'] | null
           title: string
           type: Database['public']['Enums']['property_type']
+          slug: string
+          description: string | null
+          lat: number | null
+          lng: number | null
+          parking_spots: number | null
+          agent_name: string | null
+          agent_image_url: string | null
+          amenities: string[] | null
         }
         Insert: {
           area_sq_m: number
@@ -37,14 +46,23 @@ export type Database = {
           category: Database['public']['Enums']['property_category']
           created_at?: string | null
           id: string
-          image_alt: string
-          image_url: string
+          image_alt?: string | null
+          image_url?: string | null
+          images?: string[]
           is_featured?: boolean | null
           location: string
           price: number
           price_period?: Database['public']['Enums']['price_period'] | null
           title: string
           type: Database['public']['Enums']['property_type']
+          slug: string
+          description?: string | null
+          lat?: number | null
+          lng?: number | null
+          parking_spots?: number | null
+          agent_name?: string | null
+          agent_image_url?: string | null
+          amenities?: string[] | null
         }
         Update: {
           area_sq_m?: number
@@ -55,14 +73,23 @@ export type Database = {
           category?: Database['public']['Enums']['property_category']
           created_at?: string | null
           id?: string
-          image_alt?: string
-          image_url?: string
+          image_alt?: string | null
+          image_url?: string | null
+          images?: string[]
           is_featured?: boolean | null
           location?: string
           price?: number
           price_period?: Database['public']['Enums']['price_period'] | null
           title?: string
           type?: Database['public']['Enums']['property_type']
+          slug?: string
+          description?: string | null
+          lat?: number | null
+          lng?: number | null
+          parking_spots?: number | null
+          agent_name?: string | null
+          agent_image_url?: string | null
+          amenities?: string[] | null
         }
         Relationships: []
       }

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Property } from '@/types/property';
 import { formatPrice } from '@/data/properties';
 
@@ -18,6 +19,7 @@ export default function PropertyCard({
   const [isFavorite, setIsFavorite] = useState(false);
 
   const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setIsFavorite(!isFavorite);
   };
@@ -25,17 +27,22 @@ export default function PropertyCard({
   const isRent = property.type === 'rent';
   const badgeText = property.badge || (isRent ? 'FOR RENT' : 'FOR SALE');
   const badgeBg = isRent ? 'bg-[#006655]/90' : 'bg-[#19322F]/90';
+  const mainImage =
+    property.images && property.images.length > 0
+      ? property.images[0]
+      : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80';
 
   return (
-    <article
+    <Link
+      href={`/properties/${property.slug}`}
       onClick={() => onSelect?.(property)}
       className={`bg-white rounded-xl overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] transition-all duration-300 group cursor-pointer h-full flex flex-col ${className}`}
     >
       {/* Image container */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={property.imageUrl}
-          alt={property.imageAlt}
+          src={mainImage}
+          alt={property.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
 
@@ -97,6 +104,6 @@ export default function PropertyCard({
           </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

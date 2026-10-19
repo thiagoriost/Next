@@ -4,6 +4,7 @@ export type PropertyCategory = 'All' | 'House' | 'Apartment' | 'Villa' | 'Pentho
 
 export interface Property {
   id: string;
+  slug: string;
   title: string;
   location: string;
   price: number;
@@ -13,11 +14,17 @@ export interface Property {
   beds: number;
   baths: number;
   areaSqM: number;
-  imageUrl: string;
-  imageAlt: string;
+  images: string[];
   badge?: string;
   badgeType?: 'exclusive' | 'new' | 'sale' | 'rent';
   isFeatured?: boolean;
+  description?: string;
+  lat?: number | null;
+  lng?: number | null;
+  parkingSpots?: number;
+  agentName?: string;
+  agentImageUrl?: string;
+  amenities?: string[];
 }
 
 export interface FilterState {

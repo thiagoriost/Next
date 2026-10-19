@@ -1,6 +1,159 @@
 # 🏠 Buenas Prácticas — Next.js para Bienes Raíces
 
-> Guía de referencia para construir aplicaciones de venta/renta de propiedades con Next.js de forma escalable, performante y con excelente experiencia de usuario.
+---
+
+## 📁 Arquitectura
+
+- Usa **App Router** con layouts anidados; organiza por feature: `(marketing)`, `(listings)`, `(dashboard)`
+- Prefiere **Server Components** — usa `"use client"` solo para interactividad real
+- **Centraliza tipos** TypeScript (`Property`, `Agent`, `SearchFilters`) en `/types`
+- Usa **path aliases** (`@/components`, `@/lib`) en `tsconfig.json`
+- No hardcodees strings — centraliza en constantes o archivos i18n
+
+---
+
+## 🔍 SEO
+
+- **Metadatos dinámicos** por propiedad con `generateMetadata` (título, descripción, og:image)
+- **JSON-LD (Schema.org)** con `RealEstateListing` para rich snippets en Google
+- **Sitemap dinámico** en `/app/sitemap.ts` con todas las propiedades activas
+- **Slugs descriptivos**: `/propiedades/casa-3-recamaras-polanco` en vez de `/property/123`
+- **Canónicas** en páginas de filtros/paginación para evitar contenido duplicado
+- **robots.txt** bloqueando `/dashboard` y `/admin`
+
+---
+
+## ⚡ Rendimiento
+
+- **`next/image`** para todas las imágenes; `priority` en la hero image del detalle
+- **ISR** con `revalidate` para listados — datos frescos sin rebuild completo
+- **Streaming** con `<Suspense>` para cargar mapa y filtros de forma progresiva
+- **`loading.tsx`** con skeleton screens en lugar de spinners
+- **Cachea búsquedas** frecuentes con `unstable_cache` o Redis
+- **CDN** para imágenes (Cloudinary, Imgix, Vercel Image Optimization)
+
+---
+
+## 🗺️ Mapas y Geolocalización
+
+- Carga el mapa con **`next/dynamic` + `ssr: false`** para evitar errores de hidratación
+- Almacena **lat/lng** en la base de datos, no solo dirección textual
+- **Clustering de marcadores** para zonas densas en propiedades
+- **Búsqueda por zona dibujada** (polígonos) — patrón Zillow
+- Muestra **puntos de interés cercanos** (escuelas, metro, hospitales)
+- Stack recomendado: Mapbox GL JS, Leaflet + OpenStreetMap, o Google Maps
+
+---
+
+## 🔎 Búsqueda y Filtros
+
+- **Sincroniza filtros con la URL** (`useSearchParams`) — permite compartir y navegar atrás
+- **Debounce** en inputs de texto para evitar requests innecesarios
+- **Búsqueda facetada** — muestra conteo de resultados antes de aplicar filtro
+- Considera **Algolia o Meilisearch** para búsqueda full-text con typo-tolerance
+- **Infinite scroll** o paginación por cursor en lugar de offset
+- **Guarda búsquedas recientes** en localStorage
+
+---
+
+## 🏡 Ficha de Propiedad
+
+- **Galería**: thumbnail strip + lightbox/fullscreen
+- **Tour virtual 360°** con Matterport o Street View cuando esté disponible
+- **Calculadora de hipoteca** (enganche, plazo, tasa → mensualidad)
+- **Tabla de características**: m², recámaras, baños, estacionamientos, antigüedad
+- **Propiedades similares** basadas en zona, tipo y precio
+- **Historial de precio** si el valor cambió (genera confianza)
+- **CTA flotante** en mobile durante el scroll (contactar / agendar visita)
+- **Open Graph** bien configurado para preview atractiva al compartir
+
+---
+
+## 🔐 Autenticación y Seguridad
+
+- **Auth.js v5** con providers sociales (Google, Facebook)
+- Roles: `buyer` → favoritos/visitas · `agent` → publicar propiedades · `admin` → panel completo
+- **Protege rutas con middleware** de Next.js, no solo en el cliente
+- **Route Handlers como proxy** — nunca expongas API keys al cliente
+- **Rate limiting** en endpoints de contacto y formularios
+
+---
+
+## 🎨 UI/UX
+
+- **Mobile-first** — +60% del tráfico inmobiliario es desde celular
+- **LCP < 2.5s** — la primera imagen de propiedad debe cargar rápido
+- **Skeleton screens** en lugar de spinners para listas
+- **Favoritos con optimistic UI** — respuesta instantánea sin esperar el servidor
+- **Dark/Light mode** respetando `prefers-color-scheme`
+- **Formulario de contacto mínimo** — cada campo extra reduce conversión
+
+---
+
+## ♿ Accesibilidad
+
+- `alt` descriptivo en todas las imágenes de propiedades
+- Controles del carrusel **navegables por teclado**
+- `aria-live` para anunciar cambios al aplicar filtros
+- **Contraste mínimo 4.5:1** (WCAG AA)
+- Semántica HTML: `<main>`, `<nav>`, `<article>`, `<header>`, `<footer>`
+
+---
+
+## 💾 Datos y Base de Datos
+
+- **Supabase + PostGIS** para consultas geoespaciales (`ST_DWithin`, `ST_Contains`)
+- **Indexa**: precio, tipo, estado, ubicación (índice GiST para geometrías)
+- **Soft delete** con `deleted_at` — mantén historial de propiedades
+- **RLS (Row Level Security)** para que cada agente solo gestione sus propiedades
+- Imágenes en **Supabase Storage o S3** — nunca en la base de datos
+
+---
+
+## 🧪 Testing y Calidad
+
+- **Playwright** para E2E: búsqueda → detalle → contacto
+- **Vitest + Testing Library** para componentes clave (PropertyCard, SearchBar)
+- **Zod + react-hook-form** — validación en cliente y servidor
+- **Lighthouse CI** en pipeline para prevenir regresiones
+- **ESLint + Prettier** obligatorios en CI
+
+---
+
+## 🚀 Deployment
+
+- **Vercel** — Edge Network, ISR nativo y Analytics integrados
+- `.env.local` para secretos — nunca commitees API keys
+- **Preview branches** antes de mergear a main
+- **Sentry** para alertas de errores en producción
+
+---
+
+## 💡 Ideas Premium
+
+- **IA** para generar descripciones SEO de propiedades automáticamente
+- **Comparador** lado a lado de hasta 3 propiedades
+- **Alertas por email/push** cuando hay nuevas propiedades que coincidan con criterios
+- **Agenda de visitas** con calendario integrado (sin llamadas)
+- **Score de inversión** — ROI estimado para propiedades en renta
+- **Analíticas para el agente** — vistas, contactos y conversión por propiedad
+- **Historial de mercado** — gráfica de precio/m² por zona en los últimos 12 meses
+
+---
+
+## 📋 Checklist Pre-lanzamiento
+
+- [ ] Metadatos únicos (`title` + `description`) en cada página
+- [ ] JSON-LD en fichas de propiedad
+- [ ] Sitemap enviado a Google Search Console
+- [ ] Imágenes con `next/image` y tamaños optimizados
+- [ ] Validación client + server en formularios
+- [ ] Middleware protegiendo rutas privadas
+- [ ] Variables de entorno fuera del repo
+- [ ] Core Web Vitals: LCP < 2.5s · CLS < 0.1 · INP < 200ms
+- [ ] Lighthouse > 90 en Performance y Accessibility
+- [ ] Rate limiting en endpoints de contacto
+
 
 ---
 
