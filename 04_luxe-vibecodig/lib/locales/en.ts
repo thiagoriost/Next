@@ -199,6 +199,11 @@ export const en: Translations = {
     nextPhoto: 'Next photo',
     thumbnail: 'Thumbnail {number}',
   },
+  unauthorized: {
+    title: 'Restricted access',
+    description: 'This section is available only to users with an administrator role.',
+    backToSite: 'Back to site',
+  },
   footer: {
     tagline: 'Curated luxury real estate properties for the discerning eye.',
     description: 'Discover exclusive houses, apartments, penthouses, and villas worldwide.',

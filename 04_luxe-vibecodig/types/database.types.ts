@@ -99,6 +99,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          user_id: string
+          email: string
+          full_name: string
+          role: Database['public']['Enums']['app_role']
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          email?: string
+          full_name?: string
+          role?: Database['public']['Enums']['app_role']
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          email?: string
+          full_name?: string
+          role?: Database['public']['Enums']['app_role']
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -107,6 +134,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      app_role: 'admin' | 'editor' | 'viewer'
       price_period: 'mo' | 'year'
       property_badge_type: 'exclusive' | 'new' | 'sale' | 'rent'
       property_category: 'House' | 'Apartment' | 'Villa' | 'Penthouse'

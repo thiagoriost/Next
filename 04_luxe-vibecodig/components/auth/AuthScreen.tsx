@@ -6,13 +6,18 @@ import { useRouter } from 'next/navigation';
 import type { Provider } from '@supabase/supabase-js';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useI18n } from '@/components/providers/I18nProvider';
+import {
+  AUTH_REDIRECT_STORAGE_KEY,
+  getSafeRedirectTarget,
+} from '@/lib/auth-redirect';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface AuthScreenProps {
   mode: 'login' | 'signup';
+  redirectTo?: string;
 }
 
-export default function AuthScreen({ mode }: AuthScreenProps) {
+export default function AuthScreen({ mode, redirectTo = '/' }: AuthScreenProps) {
   const { user, isLoading: authLoading } = useAuth();
   const { t } = useI18n();
   const router = useRouter();
@@ -22,15 +27,17 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const isSignup = mode === 'signup';
+  const safeRedirectTo = getSafeRedirectTarget(redirectTo);
 
   useEffect(() => {
-    if (!authLoading && user) router.replace('/');
-  }, [authLoading, router, user]);
+    if (!authLoading && user) router.replace(safeRedirectTo);
+  }, [authLoading, router, safeRedirectTo, user]);
 
   const startOAuth = async (provider: Extract<Provider, 'google' | 'facebook'>) => {
     setBusy(true);
     setError('');
     try {
+      window.sessionStorage.setItem(AUTH_REDIRECT_STORAGE_KEY, safeRedirectTo);
       const { error: authError } =
         await getSupabaseBrowserClient().auth.signInWithOAuth({
           provider,
@@ -40,6 +47,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
         });
       if (authError) throw authError;
     } catch (authError) {
+      window.sessionStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
       console.error(`[AuthScreen] ${provider} sign-in failed:`, authError);
       setError(authError instanceof Error ? authError.message : String(authError));
       setBusy(false);
@@ -78,7 +86,7 @@ export default function AuthScreen({ mode }: AuthScreenProps) {
           type: 'sms',
         });
       if (authError) throw authError;
-      router.replace('/');
+        router.replace(safeRedirectTo);
     } catch (authError) {
       console.error('[AuthScreen] Phone verification failed:', authError);
       setError(authError instanceof Error ? authError.message : String(authError));

@@ -169,6 +169,11 @@ export interface Translations {
     nextPhoto: string;
     thumbnail: string;
   };
+  unauthorized: {
+    title: string;
+    description: string;
+    backToSite: string;
+  };
   footer: {
     tagline: string;
     description: string;

@@ -199,6 +199,11 @@ export const es: Translations = {
     nextPhoto: 'Foto siguiente',
     thumbnail: 'Miniatura {number}',
   },
+  unauthorized: {
+    title: 'Acceso restringido',
+    description: 'Esta sección está disponible únicamente para usuarios con rol de administrador.',
+    backToSite: 'Volver al sitio',
+  },
   footer: {
     tagline: 'Propiedades inmobiliarias de lujo seleccionadas para el ojo exigente.',
     description: 'Descubra casas exclusivas, apartamentos, áticos y villas en todo el mundo.',

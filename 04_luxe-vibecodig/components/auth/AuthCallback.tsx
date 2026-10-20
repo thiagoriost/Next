@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/components/providers/I18nProvider';
+import {
+  AUTH_REDIRECT_STORAGE_KEY,
+  getSafeRedirectTarget,
+} from '@/lib/auth-redirect';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 export default function AuthCallback() {
@@ -20,7 +24,11 @@ export default function AuthCallback() {
         if (!active) return;
         if (error) throw error;
         if (!data.session) throw new Error('The authentication callback returned no session.');
-        router.replace('/');
+        const storedNext = window.sessionStorage.getItem(AUTH_REDIRECT_STORAGE_KEY);
+        window.sessionStorage.removeItem(AUTH_REDIRECT_STORAGE_KEY);
+        const next =
+          new URLSearchParams(window.location.search).get('next') ?? storedNext;
+        router.replace(getSafeRedirectTarget(next));
       })
       .catch((error: unknown) => {
         if (!active) return;
