@@ -1,8 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { useI18n } from '@/components/providers/I18nProvider';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import type { Locale } from '@/lib/i18n';
 import type { Database } from '@/types/database.types';
 
 type PropertyRow = Database['public']['Tables']['properties']['Row'];
@@ -14,15 +18,11 @@ type PricePeriod = Database['public']['Enums']['price_period'];
 type Section = 'properties' | 'users';
 
 const PAGE_SIZE = 8;
-const ROLE_OPTIONS: { value: AppRole; label: string }[] = [
-  { value: 'admin', label: 'Administrador' },
-  { value: 'editor', label: 'Editor' },
-  { value: 'viewer', label: 'Visor' },
-];
+const ROLE_OPTIONS: AppRole[] = ['admin', 'editor', 'viewer'];
 const CATEGORIES: PropertyCategory[] = ['House', 'Apartment', 'Villa', 'Penthouse'];
 
 function isAppRole(value: string): value is AppRole {
-  return ROLE_OPTIONS.some((option) => option.value === value);
+  return ROLE_OPTIONS.some((role) => role === value);
 }
 
 function isPropertyType(value: string): value is PropertyType {
@@ -67,14 +67,24 @@ const EMPTY_FORM: PropertyForm = {
   isFeatured: false,
 };
 
-function formatPrice(price: number, type: PropertyType, period: PricePeriod | null) {
-  const formatted = new Intl.NumberFormat('en-US', {
+function formatPrice(
+  price: number,
+  type: PropertyType,
+  period: PricePeriod | null,
+  locale: Locale,
+) {
+  const formatted = new Intl.NumberFormat(locale === 'es' ? 'es-ES' : 'en-US', {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 0,
   }).format(price);
 
-  return type === 'rent' ? `${formatted}/${period === 'year' ? 'año' : 'mes'}` : formatted;
+  if (type !== 'rent') return formatted;
+  const periodLabel =
+    locale === 'es'
+      ? period === 'year' ? 'año' : 'mes'
+      : period === 'year' ? 'year' : 'month';
+  return `${formatted}/${periodLabel}`;
 }
 
 function createSlug(title: string, id: string) {
@@ -92,17 +102,27 @@ function Pagination({
   page,
   pageCount,
   onChange,
+  previousLabel,
+  nextLabel,
+  pageLabel,
+  ofLabel,
+  paginationLabel,
 }: {
   page: number;
   pageCount: number;
   onChange: (nextPage: number) => void;
+  previousLabel: string;
+  nextLabel: string;
+  pageLabel: string;
+  ofLabel: string;
+  paginationLabel: string;
 }) {
   if (pageCount <= 1) return null;
 
   return (
-    <nav aria-label="Paginación" className="flex items-center justify-between border-t border-[#e9efed] px-5 py-4">
+    <nav aria-label={paginationLabel} className="flex items-center justify-between border-t border-[#e9efed] px-5 py-4">
       <span className="text-sm text-[#71827f]">
-        Página <strong className="text-[#19322F]">{page}</strong> de{' '}
+        {pageLabel} <strong className="text-[#19322F]">{page}</strong> {ofLabel}{' '}
         <strong className="text-[#19322F]">{pageCount}</strong>
       </span>
       <div className="flex gap-2">
@@ -112,7 +132,7 @@ function Pagination({
           onClick={() => onChange(page - 1)}
           type="button"
         >
-          Anterior
+          {previousLabel}
         </button>
         <button
           className="rounded-lg border border-[#dce8e5] px-4 py-2 text-sm font-medium transition hover:bg-[#f4f8f7] disabled:cursor-not-allowed disabled:opacity-40"
@@ -120,7 +140,7 @@ function Pagination({
           onClick={() => onChange(page + 1)}
           type="button"
         >
-          Siguiente
+          {nextLabel}
         </button>
       </div>
     </nav>
@@ -128,7 +148,10 @@ function Pagination({
 }
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const { user, signOut } = useAuth();
+  const { locale, t } = useI18n();
+  const copy = t.admin;
   const [section, setSection] = useState<Section>('properties');
   const [properties, setProperties] = useState<PropertyRow[]>([]);
   const [propertyCount, setPropertyCount] = useState(0);
@@ -144,6 +167,7 @@ export default function AdminDashboard() {
   const [form, setForm] = useState<PropertyForm>(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
   const [changingRole, setChangingRole] = useState<string | null>(null);
+  const [signOutPending, setSignOutPending] = useState(false);
 
   const fetchProperties = useCallback(async () => {
     const from = (propertyPage - 1) * PAGE_SIZE;
@@ -161,13 +185,13 @@ export default function AdminDashboard() {
 
     if (queryError) {
       console.error('[AdminDashboard] Failed to load properties:', queryError.message);
-      setError('No se pudieron cargar las propiedades. Inténtalo de nuevo.');
+      setError(copy.loadPropertiesError);
     } else {
       setProperties(data ?? []);
       setPropertyCount(count ?? 0);
     }
     setLoading(false);
-  }, [fetchProperties]);
+  }, [copy.loadPropertiesError, fetchProperties]);
 
   const fetchUsers = useCallback(async () => {
     const from = (userPage - 1) * PAGE_SIZE;
@@ -184,7 +208,7 @@ export default function AdminDashboard() {
       if (!active) return;
       if (queryError) {
         console.error('[AdminDashboard] Failed to load properties:', queryError.message);
-        setError('No se pudieron cargar las propiedades. Inténtalo de nuevo.');
+        setError(copy.loadPropertiesError);
       } else {
         setProperties(data ?? []);
         setPropertyCount(count ?? 0);
@@ -193,13 +217,13 @@ export default function AdminDashboard() {
     }).catch((fetchError: unknown) => {
       if (!active) return;
       console.error('[AdminDashboard] Failed to load properties:', fetchError);
-      setError('No se pudieron cargar las propiedades. Inténtalo de nuevo.');
+      setError(copy.loadPropertiesError);
       setLoading(false);
     });
     return () => {
       active = false;
     };
-  }, [fetchProperties]);
+  }, [copy.loadPropertiesError, fetchProperties]);
 
   useEffect(() => {
     let active = true;
@@ -207,7 +231,7 @@ export default function AdminDashboard() {
       if (!active) return;
       if (queryError) {
         console.error('[AdminDashboard] Failed to load user roles:', queryError.message);
-        setError('No se pudieron cargar los usuarios. Inténtalo de nuevo.');
+        setError(copy.loadUsersError);
       } else {
         setUsers(data ?? []);
         setUserCount(count ?? 0);
@@ -216,13 +240,13 @@ export default function AdminDashboard() {
     }).catch((fetchError: unknown) => {
       if (!active) return;
       console.error('[AdminDashboard] Failed to load user roles:', fetchError);
-      setError('No se pudieron cargar los usuarios. Inténtalo de nuevo.');
+      setError(copy.loadUsersError);
       setUsersLoading(false);
     });
     return () => {
       active = false;
     };
-  }, [fetchUsers]);
+  }, [copy.loadUsersError, fetchUsers]);
 
   const openCreateForm = () => {
     setError('');
@@ -284,7 +308,7 @@ export default function AdminDashboard() {
 
     if (result.error) {
       console.error('[AdminDashboard] Failed to save property:', result.error.message);
-      setError('No se pudo guardar la propiedad. Comprueba los datos e inténtalo de nuevo.');
+      setError(copy.savePropertyError);
       setIsSaving(false);
       return;
     }
@@ -297,7 +321,7 @@ export default function AdminDashboard() {
   };
 
   const deleteProperty = async (property: PropertyRow) => {
-    if (!window.confirm(`¿Eliminar «${property.title}»? Esta acción no se puede deshacer.`)) {
+    if (!window.confirm(copy.confirmDelete.replace('{title}', property.title))) {
       return;
     }
 
@@ -309,7 +333,7 @@ export default function AdminDashboard() {
 
     if (deleteError) {
       console.error('[AdminDashboard] Failed to delete property:', deleteError.message);
-      setError('No se pudo eliminar la propiedad. Inténtalo de nuevo.');
+      setError(copy.deletePropertyError);
       return;
     }
 
@@ -327,7 +351,7 @@ export default function AdminDashboard() {
 
     if (updateError) {
       console.error('[AdminDashboard] Failed to update user role:', updateError.message);
-      setError('No se pudo actualizar el rol. Inténtalo de nuevo.');
+      setError(copy.updateRoleError);
     } else {
       setUsers((current) =>
         current.map((item) => (item.user_id === target.user_id ? { ...item, role } : item)),
@@ -337,37 +361,54 @@ export default function AdminDashboard() {
   };
 
   const handleSignOut = async () => {
-    const signOutError = await signOut();
-    if (signOutError) {
-      console.error('[AdminDashboard] Failed to sign out:', signOutError.message);
-      setError('No se pudo cerrar la sesión. Inténtalo de nuevo.');
+    setSignOutPending(true);
+    setError('');
+    try {
+      const signOutError = await signOut();
+      if (signOutError) throw signOutError;
+      router.replace('/');
+    } catch (signOutError) {
+      console.error('[AdminDashboard] Failed to sign out:', signOutError);
+      setError(copy.signOutError);
+    } finally {
+      setSignOutPending(false);
     }
   };
 
   const propertyPages = Math.max(1, Math.ceil(propertyCount / PAGE_SIZE));
   const userPages = Math.max(1, Math.ceil(userCount / PAGE_SIZE));
+  const roleLabels: Record<AppRole, string> = {
+    admin: copy.administrator,
+    editor: copy.editor,
+    viewer: copy.viewer,
+  };
 
   return (
     <main className="min-h-screen bg-[#EEF6F6] text-[#19322F]">
       <header className="sticky top-0 z-20 border-b border-[#dce8e5] bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-5 px-5 py-4 sm:px-8">
-          <a className="flex items-center gap-3 text-xl font-semibold tracking-tight" href="/admin">
+          <Link
+            aria-label={t.common.brand}
+            className="flex items-center gap-3 text-xl font-semibold tracking-tight"
+            href="/"
+          >
             <span className="material-symbols-outlined rounded-lg bg-[#006655] p-2 text-white">domain</span>
-            LuxeEstate
+            {t.common.brand}
             <span className="hidden rounded-full bg-[#e5f1ee] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#006655] sm:inline">
-              Admin
+              {/* {copy.label} */}/
             </span>
-          </a>
+          </Link>
           <div className="flex items-center gap-3">
             <span className="hidden max-w-48 truncate text-sm text-[#5C706D] sm:block">
               {user?.email}
             </span>
             <button
               className="rounded-lg border border-[#dce8e5] px-3 py-2 text-sm font-medium transition hover:bg-[#f4f8f7]"
+              disabled={signOutPending}
               onClick={() => void handleSignOut()}
               type="button"
             >
-              Cerrar sesión
+              {signOutPending ? t.navbar.signingOut : copy.signOut}
             </button>
           </div>
         </div>
@@ -376,14 +417,14 @@ export default function AdminDashboard() {
       <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 sm:py-12">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#006655]">Administración</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#006655]">{copy.dashboard}</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {section === 'properties' ? 'Propiedades' : 'Usuarios y roles'}
+              {section === 'properties' ? copy.properties : copy.usersAndRoles}
             </h1>
             <p className="mt-2 text-[#5C706D]">
               {section === 'properties'
-                ? 'Administra las publicaciones y el contenido del catálogo.'
-                : 'Controla los permisos de las cuentas registradas.'}
+                ? copy.propertiesDescription
+                : copy.usersDescription}
             </p>
           </div>
           {section === 'properties' && (
@@ -393,15 +434,15 @@ export default function AdminDashboard() {
               type="button"
             >
               <span aria-hidden="true" className="material-symbols-outlined">add</span>
-              Nueva propiedad
+              {copy.newProperty}
             </button>
           )}
         </div>
 
-        <div aria-label="Secciones del panel" className="mt-8 flex gap-2 border-b border-[#d6e2df]" role="tablist">
+        <div aria-label={copy.dashboard} className="mt-8 flex gap-2 border-b border-[#d6e2df]" role="tablist">
           {([
-            ['properties', 'Propiedades', 'home_work'],
-            ['users', 'Usuarios y roles', 'manage_accounts'],
+            ['properties', copy.properties, 'home_work'],
+            ['users', copy.usersAndRoles, 'manage_accounts'],
           ] as const).map(([key, label, icon]) => (
             <button
               aria-selected={section === key}
@@ -431,17 +472,17 @@ export default function AdminDashboard() {
         )}
 
         {section === 'properties' ? (
-          <section aria-label="Listado de propiedades" className="mt-6 overflow-hidden rounded-2xl border border-[#e0eae7] bg-white shadow-[0_4px_18px_-12px_rgba(25,50,47,0.2)]" role="tabpanel">
+          <section aria-label={copy.properties} className="mt-6 overflow-hidden rounded-2xl border border-[#e0eae7] bg-white shadow-[0_4px_18px_-12px_rgba(25,50,47,0.2)]" role="tabpanel">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e9efed] px-5 py-4 sm:px-6">
-              <h2 className="font-semibold">Publicaciones</h2>
-              <span className="text-sm text-[#71827f]">{propertyCount} en total</span>
+              <h2 className="font-semibold">{copy.listings}</h2>
+              <span className="text-sm text-[#71827f]">{copy.totalProperties.replace('{count}', String(propertyCount))}</span>
             </div>
             {loading ? (
-              <p aria-live="polite" className="px-6 py-16 text-center text-sm text-[#71827f]">Cargando propiedades…</p>
+              <p aria-live="polite" className="px-6 py-16 text-center text-sm text-[#71827f]">{copy.loadingProperties}</p>
             ) : properties.length === 0 ? (
               <div className="px-6 py-16 text-center">
-                <p className="font-medium">Aún no hay propiedades publicadas.</p>
-                <p className="mt-2 text-sm text-[#71827f]">Crea una publicación para empezar.</p>
+                <p className="font-medium">{copy.noProperties}</p>
+                <p className="mt-2 text-sm text-[#71827f]">{copy.createFirstProperty}</p>
               </div>
             ) : (
               <>
@@ -458,17 +499,17 @@ export default function AdminDashboard() {
                           <h3 className="truncate font-semibold">{property.title}</h3>
                           <p className="mt-1 truncate text-sm text-[#71827f]">{property.location}</p>
                           <p className="mt-2 text-sm font-semibold text-[#006655]">
-                            {formatPrice(property.price, property.type, property.price_period)}
+                            {formatPrice(property.price, property.type, property.price_period, locale)}
                           </p>
                           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[#71827f]">
-                            <span>{property.beds} hab.</span>
+                            <span>{property.beds} {copy.bedroomsShort}</span>
                             <span aria-hidden="true">·</span>
-                            <span>{property.baths} baños</span>
+                            <span>{property.baths} {copy.bathroomsShort}</span>
                             <span aria-hidden="true">·</span>
                             <span>{property.area_sq_m} m²</span>
                             {property.is_featured && (
                               <span className="rounded-full bg-[#e7f3e2] px-2 py-0.5 font-medium text-[#47703d]">
-                                Destacada
+                                {copy.featured}
                               </span>
                             )}
                           </div>
@@ -481,23 +522,23 @@ export default function AdminDashboard() {
                           rel="noreferrer"
                           target="_blank"
                         >
-                          Ver
+                          {copy.view}
                         </a>
                         <button
-                          aria-label={`Editar ${property.title}`}
+                          aria-label={`${copy.edit} ${property.title}`}
                           className="rounded-lg border border-[#dce8e5] px-3 py-2 text-sm font-medium transition hover:bg-[#f4f8f7]"
                           onClick={() => openEditForm(property)}
                           type="button"
                         >
-                          Editar
+                          {copy.edit}
                         </button>
                         <button
-                          aria-label={`Eliminar ${property.title}`}
+                          aria-label={`${copy.delete} ${property.title}`}
                           className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50"
                           onClick={() => void deleteProperty(property)}
                           type="button"
                         >
-                          Eliminar
+                          {copy.delete}
                         </button>
                       </div>
                     </article>
@@ -506,6 +547,11 @@ export default function AdminDashboard() {
                 <Pagination
                   page={propertyPage}
                   pageCount={propertyPages}
+                  previousLabel={copy.previous}
+                  nextLabel={copy.next}
+                  pageLabel={copy.page}
+                  ofLabel={copy.of}
+                  paginationLabel={copy.pagination}
                   onChange={(nextPage) => {
                     setLoading(true);
                     setPropertyPage(nextPage);
@@ -515,16 +561,16 @@ export default function AdminDashboard() {
             )}
           </section>
         ) : (
-          <section aria-label="Usuarios y roles" className="mt-6 overflow-hidden rounded-2xl border border-[#e0eae7] bg-white shadow-[0_4px_18px_-12px_rgba(25,50,47,0.2)]" role="tabpanel">
+          <section aria-label={copy.usersAndRoles} className="mt-6 overflow-hidden rounded-2xl border border-[#e0eae7] bg-white shadow-[0_4px_18px_-12px_rgba(25,50,47,0.2)]" role="tabpanel">
             <div className="flex items-center justify-between gap-3 border-b border-[#e9efed] px-5 py-4 sm:px-6">
-              <h2 className="font-semibold">Cuentas registradas</h2>
-              <span className="text-sm text-[#71827f]">{userCount} usuarios</span>
+              <h2 className="font-semibold">{copy.registeredAccounts}</h2>
+              <span className="text-sm text-[#71827f]">{userCount} {copy.users}</span>
             </div>
             {usersLoading ? (
-              <p aria-live="polite" className="px-6 py-16 text-center text-sm text-[#71827f]">Cargando usuarios…</p>
+              <p aria-live="polite" className="px-6 py-16 text-center text-sm text-[#71827f]">{copy.loadingUsers}</p>
             ) : users.length === 0 ? (
               <p aria-live="polite" className="px-6 py-16 text-center text-sm text-[#71827f]">
-                No hay otros usuarios registrados.
+                {copy.noUsers}
               </p>
             ) : (
               <>
@@ -540,13 +586,13 @@ export default function AdminDashboard() {
                           <div className="min-w-0">
                             <h3 className="truncate font-semibold">{item.full_name || item.email}</h3>
                             <p className="truncate text-sm text-[#71827f]">{item.email}</p>
-                            {isCurrentUser && <span className="text-xs font-medium text-[#006655]">Tu cuenta</span>}
+                            {isCurrentUser && <span className="text-xs font-medium text-[#006655]">{copy.yourAccount}</span>}
                           </div>
                         </div>
                         <label className="flex items-center gap-3 text-sm">
-                          <span className="font-medium text-[#71827f]">Rol</span>
+                          <span className="font-medium text-[#71827f]">{copy.role}</span>
                           <select
-                            aria-label={`Rol de ${item.email}`}
+                            aria-label={`${copy.role}: ${item.email}`}
                             className="min-w-40 rounded-lg border border-[#dce8e5] bg-white px-3 py-2 font-medium outline-none focus:border-[#006655] focus:ring-2 focus:ring-[#006655]/15 disabled:opacity-50"
                             disabled={isCurrentUser || changingRole === item.user_id}
                             onChange={(event) => {
@@ -557,7 +603,7 @@ export default function AdminDashboard() {
                             value={item.role}
                           >
                             {ROLE_OPTIONS.map((option) => (
-                              <option key={option.value} value={option.value}>{option.label}</option>
+                              <option key={option} value={option}>{roleLabels[option]}</option>
                             ))}
                           </select>
                         </label>
@@ -568,6 +614,11 @@ export default function AdminDashboard() {
                 <Pagination
                   page={userPage}
                   pageCount={userPages}
+                  previousLabel={copy.previous}
+                  nextLabel={copy.next}
+                  pageLabel={copy.page}
+                  ofLabel={copy.of}
+                  paginationLabel={copy.pagination}
                   onChange={setUserPage}
                 />
               </>
@@ -587,14 +638,14 @@ export default function AdminDashboard() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#006655]">
-                  Gestión de propiedades
+                  {copy.propertyManagement}
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold" id="property-form-title">
-                  {editingProperty ? 'Editar propiedad' : 'Nueva propiedad'}
+                  {editingProperty ? copy.editProperty : copy.newProperty}
                 </h2>
               </div>
               <button
-                aria-label="Cerrar formulario"
+                aria-label={copy.closeForm}
                 className="rounded-lg px-2 py-1 text-2xl leading-none text-[#71827f] hover:bg-[#f4f8f7]"
                 disabled={isSaving}
                 onClick={() => setIsFormOpen(false)}
@@ -605,7 +656,7 @@ export default function AdminDashboard() {
             </div>
             <form className="mt-6 grid gap-4 sm:grid-cols-2" onSubmit={(event) => void saveProperty(event)}>
               <label className="grid gap-1.5 text-sm font-medium sm:col-span-2">
-                Nombre de la propiedad
+                {copy.propertyName}
                 <input
                   className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655] focus:ring-2 focus:ring-[#006655]/15"
                   maxLength={160}
@@ -615,7 +666,7 @@ export default function AdminDashboard() {
                 />
               </label>
               <label className="grid gap-1.5 text-sm font-medium sm:col-span-2">
-                Ubicación
+                {copy.location}
                 <input
                   className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655] focus:ring-2 focus:ring-[#006655]/15"
                   maxLength={240}
@@ -625,7 +676,7 @@ export default function AdminDashboard() {
                 />
               </label>
               <label className="grid gap-1.5 text-sm font-medium">
-                Tipo de operación
+                {copy.operationType}
                 <select
                   className="rounded-lg border border-[#dce8e5] bg-white px-3 py-2.5 outline-none focus:border-[#006655]"
                   onChange={(event) => {
@@ -635,12 +686,12 @@ export default function AdminDashboard() {
                   }}
                   value={form.type}
                 >
-                  <option value="sale">Venta</option>
-                  <option value="rent">Alquiler</option>
+                  <option value="sale">{copy.sale}</option>
+                  <option value="rent">{copy.rent}</option>
                 </select>
               </label>
               <label className="grid gap-1.5 text-sm font-medium">
-                Categoría
+                {copy.category}
                 <select
                   className="rounded-lg border border-[#dce8e5] bg-white px-3 py-2.5 outline-none focus:border-[#006655]"
                   onChange={(event) => {
@@ -650,11 +701,13 @@ export default function AdminDashboard() {
                   }}
                   value={form.category}
                 >
-                  {CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
+                  {CATEGORIES.map((category) => (
+                    <option key={category} value={category}>{t.home.categories[category]}</option>
+                  ))}
                 </select>
               </label>
               <label className="grid gap-1.5 text-sm font-medium">
-                Precio (USD)
+                {copy.price}
                 <input
                   className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
                   min="1"
@@ -667,7 +720,7 @@ export default function AdminDashboard() {
               </label>
               {form.type === 'rent' && (
                 <label className="grid gap-1.5 text-sm font-medium">
-                  Periodo
+                  {copy.period}
                   <select
                     className="rounded-lg border border-[#dce8e5] bg-white px-3 py-2.5 outline-none focus:border-[#006655]"
                     onChange={(event) => {
@@ -677,13 +730,13 @@ export default function AdminDashboard() {
                     }}
                     value={form.pricePeriod}
                   >
-                    <option value="mo">Mensual</option>
-                    <option value="year">Anual</option>
+                    <option value="mo">{copy.monthly}</option>
+                    <option value="year">{copy.yearly}</option>
                   </select>
                 </label>
               )}
               <label className="grid gap-1.5 text-sm font-medium">
-                Habitaciones
+                {copy.beds}
                 <input
                   className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
                   min="0"
@@ -695,7 +748,7 @@ export default function AdminDashboard() {
                 />
               </label>
               <label className="grid gap-1.5 text-sm font-medium">
-                Baños
+                {copy.baths}
                 <input
                   className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
                   min="0"
@@ -707,7 +760,7 @@ export default function AdminDashboard() {
                 />
               </label>
               <label className="grid gap-1.5 text-sm font-medium">
-                Superficie (m²)
+                {copy.area}
                 <input
                   className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
                   min="1"
@@ -719,7 +772,7 @@ export default function AdminDashboard() {
                 />
               </label>
               <label className="grid gap-1.5 text-sm font-medium sm:col-span-2">
-                URL de la imagen principal
+                {copy.mainImageUrl}
                 <input
                   className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
                   onChange={(event) => setForm({ ...form, imageUrl: event.target.value })}
@@ -730,7 +783,7 @@ export default function AdminDashboard() {
                 />
               </label>
               <label className="grid gap-1.5 text-sm font-medium sm:col-span-2">
-                Descripción
+                {copy.description}
                 <textarea
                   className="min-h-24 resize-y rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655] focus:ring-2 focus:ring-[#006655]/15"
                   onChange={(event) => setForm({ ...form, description: event.target.value })}
@@ -745,7 +798,7 @@ export default function AdminDashboard() {
                   onChange={(event) => setForm({ ...form, isFeatured: event.target.checked })}
                   type="checkbox"
                 />
-                Mostrar en propiedades destacadas
+                {copy.featuredCheckbox}
               </label>
               <div className="flex justify-end gap-3 border-t border-[#e9efed] pt-5 sm:col-span-2">
                 <button
@@ -754,14 +807,14 @@ export default function AdminDashboard() {
                   onClick={() => setIsFormOpen(false)}
                   type="button"
                 >
-                  Cancelar
+                  {copy.cancel}
                 </button>
                 <button
                   className="rounded-lg bg-[#006655] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#005544] disabled:cursor-wait disabled:opacity-60"
                   disabled={isSaving}
                   type="submit"
                 >
-                  {isSaving ? 'Guardando…' : editingProperty ? 'Guardar cambios' : 'Crear propiedad'}
+                  {isSaving ? copy.saving : editingProperty ? copy.saveChanges : copy.createProperty}
                 </button>
               </div>
             </form>

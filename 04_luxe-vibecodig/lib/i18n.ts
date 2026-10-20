@@ -26,7 +26,13 @@ export const COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
 export function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-  return match ? decodeURIComponent(match[3]) : null;
+  if (!match) return null;
+
+  try {
+    return decodeURIComponent(match[3]);
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -53,10 +59,14 @@ export function changeLanguage(locale: Locale): void {
  */
 export function getClientLocale(): Locale {
   const cookieVal = getCookie(LOCALE_COOKIE_NAME);
-  if (cookieVal && (SUPPORTED_LOCALES as readonly string[]).includes(cookieVal)) {
-    return cookieVal as Locale;
+  if (cookieVal && isLocale(cookieVal)) {
+    return cookieVal;
   }
   return DEFAULT_LOCALE;
+}
+
+export function isLocale(value: string): value is Locale {
+  return (SUPPORTED_LOCALES as readonly string[]).includes(value);
 }
 
 /**
@@ -81,8 +91,8 @@ export async function getServerLocale(): Promise<Locale> {
       const { cookies } = await import('next/headers');
       const cookieStore = await cookies();
       const val = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
-      if (val && (SUPPORTED_LOCALES as readonly string[]).includes(val)) {
-        return val as Locale;
+      if (val && isLocale(val)) {
+        return val;
       }
     } catch {
       // Fallback if invoked outside request context

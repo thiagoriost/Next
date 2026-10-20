@@ -38,9 +38,15 @@ npx supabase db push
 
 Crea el diseño de registro para que luzca exactamente igual a @code.html, o guiate con la imagen adjunta
 Coloca un boton con el avatar en el NavBar en caso de que el usuario este logueado, si no esta logueado, coloca un boton que diga "Login" para entrar a la pagina de login. Si esta logueado sobre el mismo boton debe mostrar la interfaz y logica para hacer el logout.
+Se necesita que el boton de login siga el i18n para que se muestre en ingles o español segun el idioma seleccionado.
 Implementa la autenticacion empleando los servicios de facebook, telefono y google sign in desde supabase auth.
 Yo proveere las configuraciones de google, facebook y telefono.
 
-
-
 /////////////////////////////////////////////////////
+
+Crea un dashboard administrativo que permita:
+- Ver las propiedades publicadas con paginacion, editar, eliminar y crear propiedades.
+- Editar roles de los usuarios autenticados en la aplicacion, para esto, crea una tabla en la base de datos que permita guardar los roles de los usuarios, por ejemplo: admin, editor, viewer, etc.
+- Crea un middleware que permita proteger las rutas de la aplicacion y que solo los usuarios autenticados puedan acceder a ellas. 
+- Protege el dashboard administrativo para que solo los usuarios con rol de admin puedan acceder a el, implementa la logica en el middleware.
+- 

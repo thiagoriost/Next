@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useI18n } from '@/components/providers/I18nProvider';
 import { useAuth } from '@/components/providers/AuthProvider';
 import LanguageDropdown from '@/components/common/LanguageDropdown';
@@ -20,6 +20,7 @@ export default function Navbar({
   onTabChange,
 }: NavbarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { locale, t, changeLanguage } = useI18n();
   const { user, isLoading, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -61,6 +62,7 @@ export default function Navbar({
       const error = await signOut();
       if (error) throw error;
       setProfileMenuOpen(false);
+      router.replace('/');
     } catch (error) {
       console.error('[Navbar] Failed to sign out:', error);
       setSignOutError(true);
@@ -124,6 +126,19 @@ export default function Navbar({
 
           {/* Right Action Icons & Language Selector */}
           <div className="flex items-center gap-2.5">
+            {!isLoading && user && pathname === '/' && (
+              <Link
+                aria-label={t.navbar.adminDashboard}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#006655]/20 bg-white/90 px-3 py-1.5 text-xs font-semibold text-[#006655] shadow-sm transition hover:border-[#006655]/40 hover:bg-white"
+                href="/admin"
+              >
+                <span aria-hidden="true" className="material-symbols-outlined text-base">
+                  admin_panel_settings
+                </span>
+                <span className="hidden sm:inline">{t.navbar.adminDashboard}</span>
+              </Link>
+            )}
+
             {/* Desktop Language Selector */}
             <div className="hidden sm:block mr-1">
               <LanguageDropdown variant="pill" showLabel={true} />
