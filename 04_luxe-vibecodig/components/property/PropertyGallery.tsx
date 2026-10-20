@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import { useI18n } from '@/components/providers/I18nProvider';
 
 interface PropertyGalleryProps {
   images: string[];
@@ -21,6 +22,7 @@ export default function PropertyGallery({
   title,
   badge = 'Premium',
 }: PropertyGalleryProps) {
+  const { t } = useI18n();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -29,6 +31,7 @@ export default function PropertyGallery({
     images && images.length > 0 ? images : DEFAULT_FALLBACK_IMAGES;
 
   const currentImage = displayImages[selectedIndex] || displayImages[0];
+  const badgeText = t.propertyDetail.badges[badge] || badge;
 
   const handleNext = useCallback(() => {
     setSelectedIndex((prev) => (prev + 1) % displayImages.length);
@@ -75,10 +78,10 @@ export default function PropertyGallery({
         {/* Badges */}
         <div className="absolute top-4 left-4 flex gap-2 z-10">
           <span className="bg-[#006655] text-white text-xs font-medium px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
-            {badge || 'Premium'}
+            {badgeText}
           </span>
           <span className="bg-white/90 backdrop-blur-sm text-[#19322F] text-xs font-medium px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
-            New
+            {t.propertyDetail.newBadge}
           </span>
         </div>
 
@@ -92,7 +95,10 @@ export default function PropertyGallery({
           className="absolute bottom-4 right-4 bg-white/90 hover:bg-white text-[#19322F] px-4 py-2 rounded-lg text-sm font-medium shadow-lg backdrop-blur-sm transition-all flex items-center gap-2 cursor-pointer z-10"
         >
           <span className="material-icons text-sm">grid_view</span>
-          View All Photos ({displayImages.length})
+          {t.propertyDetail.viewAllPhotos.replace(
+            '{count}',
+            String(displayImages.length)
+          )}
         </button>
       </div>
 
@@ -106,7 +112,10 @@ export default function PropertyGallery({
                 key={idx}
                 type="button"
                 onClick={() => setSelectedIndex(idx)}
-                aria-label={`View image ${idx + 1}`}
+                aria-label={t.propertyDetail.viewImage.replace(
+                  '{number}',
+                  String(idx + 1)
+                )}
                 className={`flex-none w-44 sm:w-48 aspect-[4/3] rounded-lg overflow-hidden cursor-pointer snap-start relative transition-all duration-200 text-left ${
                   isSelected
                     ? 'ring-2 ring-[#006655] ring-offset-2 ring-offset-[#EEF6F6] opacity-100 shadow-sm'
@@ -140,13 +149,15 @@ export default function PropertyGallery({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-sm font-medium">
-              Photo {selectedIndex + 1} of {displayImages.length}
+              {t.propertyDetail.photoCount
+                .replace('{current}', String(selectedIndex + 1))
+                .replace('{total}', String(displayImages.length))}
             </div>
             <button
               type="button"
               onClick={() => setIsLightboxOpen(false)}
               className="p-2 rounded-full hover:bg-white/10 text-white transition-colors"
-              aria-label="Close photo modal"
+              aria-label={t.propertyDetail.closePhotoModal}
             >
               <span className="material-icons text-2xl">close</span>
             </button>
@@ -174,7 +185,7 @@ export default function PropertyGallery({
                 type="button"
                 onClick={handlePrev}
                 className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center backdrop-blur-sm transition-all"
-                aria-label="Previous photo"
+                aria-label={t.propertyDetail.previousPhoto}
               >
                 <span className="material-icons text-2xl">chevron_left</span>
               </button>
@@ -186,7 +197,7 @@ export default function PropertyGallery({
                 type="button"
                 onClick={handleNext}
                 className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center backdrop-blur-sm transition-all"
-                aria-label="Next photo"
+                aria-label={t.propertyDetail.nextPhoto}
               >
                 <span className="material-icons text-2xl">chevron_right</span>
               </button>
@@ -211,7 +222,10 @@ export default function PropertyGallery({
               >
                 <Image
                   src={imageUrl}
-                  alt={`Thumbnail ${idx + 1}`}
+                  alt={t.propertyDetail.thumbnail.replace(
+                    '{number}',
+                    String(idx + 1)
+                  )}
                   fill
                   sizes="64px"
                   className="object-cover"

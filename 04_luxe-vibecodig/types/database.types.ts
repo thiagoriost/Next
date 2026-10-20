@@ -30,12 +30,14 @@ export type Database = {
           type: Database['public']['Enums']['property_type']
           slug: string
           description: string | null
+          description_es: string | null
           lat: number | null
           lng: number | null
           parking_spots: number | null
           agent_name: string | null
           agent_image_url: string | null
           amenities: string[] | null
+          amenities_es: string[] | null
         }
         Insert: {
           area_sq_m: number
@@ -57,12 +59,14 @@ export type Database = {
           type: Database['public']['Enums']['property_type']
           slug: string
           description?: string | null
+          description_es?: string | null
           lat?: number | null
           lng?: number | null
           parking_spots?: number | null
           agent_name?: string | null
           agent_image_url?: string | null
           amenities?: string[] | null
+          amenities_es?: string[] | null
         }
         Update: {
           area_sq_m?: number
@@ -84,12 +88,41 @@ export type Database = {
           type?: Database['public']['Enums']['property_type']
           slug?: string
           description?: string | null
+          description_es?: string | null
           lat?: number | null
           lng?: number | null
           parking_spots?: number | null
           agent_name?: string | null
           agent_image_url?: string | null
           amenities?: string[] | null
+          amenities_es?: string[] | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          user_id: string
+          email: string
+          full_name: string
+          role: Database['public']['Enums']['app_role']
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          email?: string
+          full_name?: string
+          role?: Database['public']['Enums']['app_role']
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          email?: string
+          full_name?: string
+          role?: Database['public']['Enums']['app_role']
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -101,6 +134,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      app_role: 'admin' | 'editor' | 'viewer'
       price_period: 'mo' | 'year'
       property_badge_type: 'exclusive' | 'new' | 'sale' | 'rent'
       property_category: 'House' | 'Apartment' | 'Villa' | 'Penthouse'

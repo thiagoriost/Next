@@ -19,12 +19,14 @@ export interface Property {
   badgeType?: 'exclusive' | 'new' | 'sale' | 'rent';
   isFeatured?: boolean;
   description?: string;
+  descriptionEs?: string;
   lat?: number | null;
   lng?: number | null;
   parkingSpots?: number;
   agentName?: string;
   agentImageUrl?: string;
   amenities?: string[];
+  amenitiesEs?: string[];
 }
 
 export interface FilterState {

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Locale, SUPPORTED_LOCALES, localeDetails } from '@/lib/i18n';
 import { useI18n } from '@/components/providers/I18nProvider';
+import LanguageFlag from './LanguageFlag';
 
 interface LanguageDropdownProps {
   className?: string;
@@ -38,6 +39,8 @@ export default function LanguageDropdown({
   };
 
   const current = localeDetails[locale] || localeDetails.en;
+  const selectLanguageLabel =
+    locale === 'es' ? 'Seleccionar idioma' : 'Select language';
 
   const buttonStyles = {
     pill: 'inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 hover:bg-white text-[#19322F] text-xs font-semibold shadow-sm border border-[#006655]/15 transition-all hover:border-[#006655]/30 cursor-pointer',
@@ -52,11 +55,11 @@ export default function LanguageDropdown({
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="true"
         aria-expanded={isOpen}
-        aria-label="Select language"
+        aria-label={`${selectLanguageLabel}: ${current.name}`}
         className={buttonStyles}
       >
-        <span className="text-base leading-none select-none">{current.flag}</span>
-        {showLabel && <span className="tracking-tight">{current.label}</span>}
+        <LanguageFlag locale={locale} />
+        {/* {showLabel && <span className="tracking-tight">{current.label}</span>} */}
         <span
           className={`material-icons text-sm text-[#5C706D] transition-transform duration-200 ${
             isOpen ? 'rotate-180 text-[#006655]' : ''
@@ -91,7 +94,7 @@ export default function LanguageDropdown({
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-base select-none">{details.flag}</span>
+                  <LanguageFlag locale={langKey} />
                   <span>{details.name}</span>
                 </div>
                 {isSelected && (

@@ -2,9 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
 import { useI18n } from '@/components/providers/I18nProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 import LanguageDropdown from '@/components/common/LanguageDropdown';
+import LanguageFlag from '@/components/common/LanguageFlag';
 import { SUPPORTED_LOCALES, localeDetails, Locale } from '@/lib/i18n';
 
 interface NavbarProps {
@@ -17,8 +20,13 @@ export default function Navbar({
   onTabChange,
 }: NavbarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { locale, t, changeLanguage } = useI18n();
+  const { user, isLoading, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [signOutPending, setSignOutPending] = useState(false);
+  const [signOutError, setSignOutError] = useState(false);
 
   const navItems = [
     { key: 'Buy', label: t.navbar.buy },
@@ -46,6 +54,34 @@ export default function Navbar({
       changeLanguage(lang);
     }
   };
+
+  const handleSignOut = async () => {
+    setSignOutPending(true);
+    setSignOutError(false);
+    try {
+      const error = await signOut();
+      if (error) throw error;
+      setProfileMenuOpen(false);
+      router.replace('/');
+    } catch (error) {
+      console.error('[Navbar] Failed to sign out:', error);
+      setSignOutError(true);
+    } finally {
+      setSignOutPending(false);
+    }
+  };
+
+  const avatarUrl = [
+    user?.user_metadata?.avatar_url,
+    user?.user_metadata?.picture,
+  ].find((value): value is string => typeof value === 'string');
+  const displayName =
+    [user?.user_metadata?.full_name, user?.user_metadata?.name].find(
+      (value): value is string => typeof value === 'string',
+    ) ??
+    user?.email ??
+    user?.phone ??
+    '';
 
   return (
     <nav className="sticky top-0 z-50 bg-[#EEF6F6]/95 backdrop-blur-md border-b border-[#006655]/10 transition-all">
@@ -90,6 +126,19 @@ export default function Navbar({
 
           {/* Right Action Icons & Language Selector */}
           <div className="flex items-center gap-2.5">
+            {!isLoading && user && pathname === '/' && (
+              <Link
+                aria-label={t.navbar.adminDashboard}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#006655]/20 bg-white/90 px-3 py-1.5 text-xs font-semibold text-[#006655] shadow-sm transition hover:border-[#006655]/40 hover:bg-white"
+                href="/admin"
+              >
+                <span aria-hidden="true" className="material-symbols-outlined text-base">
+                  admin_panel_settings
+                </span>
+                <span className="hidden sm:inline">{t.navbar.adminDashboard}</span>
+              </Link>
+            )}
+
             {/* Desktop Language Selector */}
             <div className="hidden sm:block mr-1">
               <LanguageDropdown variant="pill" showLabel={true} />
@@ -110,15 +159,88 @@ export default function Navbar({
               <span className="absolute top-2 right-2 w-2 h-2 bg-[#006655] rounded-full" />
             </button>
 
+            {isLoading ? (
+              <span
+                aria-label={t.common.loading}
+                className="ml-1 h-9 w-9 animate-pulse rounded-full bg-[#006655]/10"
+              />
+            ) : user ? (
+              <div className="relative ml-1">
+                <button
+                  type="button"
+                  aria-label={t.navbar.userProfileAria}
+                  aria-haspopup="menu"
+                  aria-expanded={profileMenuOpen}
+                  onClick={() => {
+                    setProfileMenuOpen((open) => !open);
+                    setSignOutError(false);
+                  }}
+                  className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-[#006655]/5"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#006655]/20 bg-[#006655]/10 text-sm font-semibold text-[#006655]">
+                    {avatarUrl ? (
+                      <Image
+                        alt=""
+                        aria-hidden="true"
+                        className="h-full w-full object-cover"
+                        height={36}
+                        src={avatarUrl}
+                        unoptimized
+                        width={36}
+                      />
+                    ) : (
+                      displayName.charAt(0).toUpperCase()
+                    )}
+                  </span>
+                </button>
+                {profileMenuOpen && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 top-full z-50 mt-2 w-60 rounded-xl border border-[#006655]/10 bg-white p-2 shadow-xl"
+                  >
+                    <p className="truncate px-3 py-2 text-sm text-[#5C706D]">
+                      {displayName}
+                    </p>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={signOutPending}
+                      onClick={handleSignOut}
+                      className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#006655] transition-colors hover:bg-[#006655]/5 disabled:opacity-60"
+                    >
+                      {signOutPending ? t.navbar.signingOut : t.navbar.logout}
+                    </button>
+                    {signOutError && (
+                      <p role="alert" className="px-3 py-2 text-xs text-red-700">
+                        {t.navbar.signOutError}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => router.push('/login')}
+                className="ml-1 rounded-full bg-[#006655] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#004d40]"
+              >
+                {t.navbar.login}
+              </button>
+            )}
+
             {/* Profile Avatar */}
             <button
               aria-label={t.navbar.userProfileAria}
-              className="ml-1 flex items-center gap-2 p-1 rounded-full hover:bg-[#006655]/5 transition-colors cursor-pointer"
+              aria-hidden="true"
+              className="hidden"
             >
               <div className="w-9 h-9 rounded-full bg-[#006655]/10 overflow-hidden border border-[#006655]/20">
-                <img
+                <Image
                   alt="User Profile"
                   className="w-full h-full object-cover"
+                  height={36}
+                  unoptimized
+                  width={36}
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhLuM9qNltZNxgIWPtC3dVxQ_JLFKXYB9d_klGFux_2JVOGtRlbV4GvpvdT4wqpsueZnXFQhKJe9MGGvM6rXQX15iv80mbEKxjmy4X14AZRqvp573ZlKYDN9bAb0ka7B-g5mkOCP6nRuKC9QsO02JVq6gqZeAo3-7dUurVhhgPJGeuL0Gk2Cp3Wnu5mVlUtpajB2wtx8uMoytbh78i9RmHYtJg52ZELl9XdIC9f5Kix_lFMFoi6Ru61ARrEGIrvgvz4ViiKhufTns"
                 />
               </div>
@@ -186,7 +308,7 @@ export default function Navbar({
                         : 'bg-white border border-[#006655]/10 text-[#19322F]'
                     }`}
                   >
-                    <span>{details.flag}</span>
+                    <LanguageFlag locale={langKey} />
                     <span>{details.name}</span>
                   </button>
                 );
