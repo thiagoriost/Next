@@ -50,3 +50,10 @@ Crea un dashboard administrativo que permita:
 - Crea un middleware que permita proteger las rutas de la aplicacion y que solo los usuarios autenticados puedan acceder a ellas. 
 - Protege el dashboard administrativo para que solo los usuarios con rol de admin puedan acceder a el, implementa la logica en el middleware.
 - 
+//////////////////////////////////////////
+
+Analiza lo siguiente y entregame un planing antes de iniciar la implementacion:
+Ajusta la pantalla para editar y crear propiedades nuevas:
+ - debe de seguir el diseño de @code.html ya que cuenta con las clases y estructuras necesarias. Debes de usar @tailwindcss
+ - Ajusta los campos de la tabla de propiedades de la base de datos, para que sean validos con el formulario de @code.html
+ - Utiliza un bucket de supabase storage para guardar y actualizar las imagenes ( que se encuentran de forma local). Debe de permitir arrastrar y soltar para subir imagenes o un boton para seleccionar archivos.

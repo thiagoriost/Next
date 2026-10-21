@@ -49,7 +49,12 @@ WHERE email = 'admin@example.com';
 Administrators can manage property listings and assign `admin`, `editor`, or
 `viewer` roles at `/admin`. Public property browsing remains available without
 signing in. Property writes and role changes are additionally restricted by
-Supabase row-level security policies.
+Supabase row-level security policies. Apply the property editor migration in
+`supabase/migrations` to add the listing status, construction year, and
+Commercial category fields and provision the public `property-images` Storage
+bucket. The migration permits public image reads and restricts image uploads,
+updates, and deletes to administrators. The editor accepts JPG, PNG, and WEBP
+images up to 5 MB each.
 
 ## Learn More
 

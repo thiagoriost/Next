@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import PropertyEditor, { type PropertyEditorData } from '@/components/admin/PropertyEditor';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useI18n } from '@/components/providers/I18nProvider';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
@@ -12,58 +13,34 @@ import type { Database } from '@/types/database.types';
 type PropertyRow = Database['public']['Tables']['properties']['Row'];
 type UserRoleRow = Database['public']['Tables']['user_roles']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
-type PropertyCategory = Database['public']['Enums']['property_category'];
 type PropertyType = Database['public']['Enums']['property_type'];
 type PricePeriod = Database['public']['Enums']['price_period'];
+type PropertyStatus = Database['public']['Enums']['property_status'];
 type Section = 'properties' | 'users';
 
 const PAGE_SIZE = 8;
 const ROLE_OPTIONS: AppRole[] = ['admin', 'editor', 'viewer'];
-const CATEGORIES: PropertyCategory[] = ['House', 'Apartment', 'Villa', 'Penthouse'];
 
 function isAppRole(value: string): value is AppRole {
   return ROLE_OPTIONS.some((role) => role === value);
 }
 
-function isPropertyType(value: string): value is PropertyType {
-  return value === 'sale' || value === 'rent';
-}
-
-function isPropertyCategory(value: string): value is PropertyCategory {
-  return CATEGORIES.some((category) => category === value);
-}
-
-function isPricePeriod(value: string): value is PricePeriod {
-  return value === 'mo' || value === 'year';
-}
-
-interface PropertyForm {
-  title: string;
-  location: string;
-  price: string;
-  pricePeriod: PricePeriod;
-  type: PropertyType;
-  category: PropertyCategory;
-  beds: string;
-  baths: string;
-  areaSqM: string;
-  imageUrl: string;
-  description: string;
-  isFeatured: boolean;
-}
-
-const EMPTY_FORM: PropertyForm = {
+const EMPTY_FORM: PropertyEditorData = {
   title: '',
   location: '',
   price: '',
   pricePeriod: 'mo',
   type: 'sale',
+  status: 'for-sale',
   category: 'House',
   beds: '1',
   baths: '1',
   areaSqM: '',
-  imageUrl: '',
+  yearBuilt: '',
+  parkingSpots: '0',
   description: '',
+  amenities: [],
+  images: [],
   isFeatured: false,
 };
 
@@ -96,6 +73,13 @@ function createSlug(title: string, id: string) {
     .replace(/^-|-$/g, '');
 
   return `${normalized || 'propiedad'}-${id.slice(0, 8)}`;
+}
+
+function getPropertyImagePath(url: string): string | null {
+  const storageMarker = '/storage/v1/object/public/property-images/';
+  const markerIndex = url.indexOf(storageMarker);
+  if (markerIndex === -1) return null;
+  return url.slice(markerIndex + storageMarker.length).split('?')[0] || null;
 }
 
 function Pagination({
@@ -164,7 +148,6 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<PropertyRow | null>(null);
-  const [form, setForm] = useState<PropertyForm>(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
   const [changingRole, setChangingRole] = useState<string | null>(null);
   const [signOutPending, setSignOutPending] = useState(false);
@@ -251,73 +234,155 @@ export default function AdminDashboard() {
   const openCreateForm = () => {
     setError('');
     setEditingProperty(null);
-    setForm(EMPTY_FORM);
     setIsFormOpen(true);
   };
 
   const openEditForm = (property: PropertyRow) => {
     setError('');
     setEditingProperty(property);
-    setForm({
+    setIsFormOpen(true);
+  };
+
+  const editorData = (property: PropertyRow | null): PropertyEditorData => {
+    if (!property) return EMPTY_FORM;
+    return {
       title: property.title,
       location: property.location,
       price: String(property.price),
       pricePeriod: property.price_period ?? 'mo',
       type: property.type,
+      status: property.status,
       category: property.category,
       beds: String(property.beds),
       baths: String(property.baths),
       areaSqM: String(property.area_sq_m),
-      imageUrl: property.images[0] ?? property.image_url,
+      yearBuilt: property.year_built === null ? '' : String(property.year_built),
+      parkingSpots: String(property.parking_spots ?? 0),
       description: property.description ?? '',
+      amenities: property.amenities ?? [],
+      images: property.images.length > 0 ? property.images : property.image_url ? [property.image_url] : [],
       isFeatured: property.is_featured ?? false,
-    });
-    setIsFormOpen(true);
+    };
   };
 
-  const saveProperty = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const saveProperty = async (form: PropertyEditorData, files: File[], saveAsDraft: boolean) => {
     setError('');
     setIsSaving(true);
 
     const id = editingProperty?.id ?? crypto.randomUUID();
-    const imageUrl = form.imageUrl.trim();
-    const values: Database['public']['Tables']['properties']['Insert'] = {
-      id,
-      slug: editingProperty?.slug ?? createSlug(form.title, id),
-      title: form.title.trim(),
-      location: form.location.trim(),
-      price: Number(form.price),
-      price_period: form.type === 'rent' ? form.pricePeriod : null,
-      type: form.type,
-      category: form.category,
-      beds: Number(form.beds),
-      baths: Number(form.baths),
-      area_sq_m: Number(form.areaSqM),
-      image_url: imageUrl,
-      image_alt: form.title.trim(),
-      images: [imageUrl],
-      description: form.description.trim() || null,
-      is_featured: form.isFeatured,
-    };
+    const status = saveAsDraft ? 'draft' : form.status;
+    const type = form.type;
+    const uploadedPaths: string[] = [];
+    const uploadedUrls: string[] = [];
+    let supabase: ReturnType<typeof getSupabaseBrowserClient> | undefined;
+    let databaseSaved = false;
+    let imageCleanupFailed = false;
 
-    const supabase = getSupabaseBrowserClient();
-    const result = editingProperty
-      ? await supabase.from('properties').update(values).eq('id', editingProperty.id)
-      : await supabase.from('properties').insert(values);
+    try {
+      supabase = getSupabaseBrowserClient();
+      for (const file of files) {
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = `${id}/${crypto.randomUUID()}-${safeName}`;
+        const { data, error: uploadError } = await supabase.storage
+          .from('property-images')
+          .upload(path, file, { contentType: file.type, upsert: false });
 
-    if (result.error) {
-      console.error('[AdminDashboard] Failed to save property:', result.error.message);
+        if (uploadError) throw uploadError;
+        uploadedPaths.push(data.path);
+        uploadedUrls.push(supabase.storage.from('property-images').getPublicUrl(data.path).data.publicUrl);
+      }
+
+      let uploadedIndex = 0;
+      const imageUrls = form.images.map((url) =>
+        url.startsWith('blob:') ? uploadedUrls[uploadedIndex++] : url,
+      );
+
+      if (imageUrls.length === 0) {
+        setError(copy.propertyForm.imageRequired);
+        return;
+      }
+
+      const values: Database['public']['Tables']['properties']['Insert'] = {
+        id,
+        slug: editingProperty?.slug ?? createSlug(form.title, id),
+        title: form.title.trim(),
+        location: form.location.trim(),
+        price: Number(form.price),
+        price_period: type === 'rent' ? form.pricePeriod : null,
+        type,
+        category: form.category,
+        beds: Number(form.beds),
+        baths: Number(form.baths),
+        area_sq_m: Number(form.areaSqM),
+        image_url: imageUrls[0],
+        image_alt: form.title.trim(),
+        images: imageUrls,
+        description: form.description.trim() || null,
+        is_featured: form.isFeatured,
+        status,
+        year_built: form.yearBuilt ? Number(form.yearBuilt) : null,
+        parking_spots: Number(form.parkingSpots),
+        amenities: form.amenities,
+      };
+
+      const result = editingProperty
+        ? await supabase.from('properties').update(values).eq('id', editingProperty.id)
+        : await supabase.from('properties').insert(values);
+
+      if (result.error) {
+        console.error('[AdminDashboard] Failed to save property:', result.error.message);
+        setError(copy.savePropertyError);
+        if (uploadedPaths.length > 0) {
+          const { error: rollbackError } = await supabase.storage.from('property-images').remove(uploadedPaths);
+          if (rollbackError) {
+            console.error('[AdminDashboard] Failed to remove unreferenced uploaded images:', rollbackError.message);
+          }
+        }
+        return;
+      }
+      databaseSaved = true;
+
+      if (editingProperty) {
+        const previousImages = editingProperty.images.length > 0
+          ? editingProperty.images
+          : editingProperty.image_url ? [editingProperty.image_url] : [];
+        const currentImageSet = new Set(imageUrls);
+        const removedPaths = previousImages
+          .filter((url) => !currentImageSet.has(url))
+          .map(getPropertyImagePath)
+          .filter((path): path is string => path !== null);
+
+        if (removedPaths.length > 0) {
+          try {
+            const { error: cleanupError } = await supabase.storage.from('property-images').remove(removedPaths);
+            if (cleanupError) {
+              console.error('[AdminDashboard] Failed to remove replaced property images:', cleanupError.message);
+              imageCleanupFailed = true;
+            }
+          } catch (cleanupError: unknown) {
+            console.error('[AdminDashboard] Failed to remove replaced property images:', cleanupError);
+            imageCleanupFailed = true;
+          }
+        }
+      }
+
+      setIsFormOpen(false);
+      setEditingProperty(null);
+      if (!editingProperty) setPropertyPage(1);
+      else await loadProperties();
+      if (imageCleanupFailed) setError(copy.propertyForm.imageCleanupError);
+    } catch (saveError) {
+      console.error('[AdminDashboard] Failed to save property or upload images:', saveError);
+      if (!databaseSaved && uploadedPaths.length > 0 && supabase) {
+        const { error: rollbackError } = await supabase.storage.from('property-images').remove(uploadedPaths);
+        if (rollbackError) {
+          console.error('[AdminDashboard] Failed to remove unreferenced uploaded images:', rollbackError.message);
+        }
+      }
       setError(copy.savePropertyError);
+    } finally {
       setIsSaving(false);
-      return;
     }
-
-    setIsSaving(false);
-    setIsFormOpen(false);
-    setEditingProperty(null);
-    if (!editingProperty) setPropertyPage(1);
-    else await loadProperties();
   };
 
   const deleteProperty = async (property: PropertyRow) => {
@@ -337,8 +402,30 @@ export default function AdminDashboard() {
       return;
     }
 
+    const imageUrls = property.images.length > 0
+      ? property.images
+      : property.image_url ? [property.image_url] : [];
+    const imagePaths = imageUrls
+      .map(getPropertyImagePath)
+      .filter((path): path is string => path !== null);
+    let imageCleanupFailed = false;
+    if (imagePaths.length > 0) {
+      try {
+        const { error: cleanupError } = await getSupabaseBrowserClient()
+          .storage.from('property-images').remove(imagePaths);
+        if (cleanupError) {
+          console.error('[AdminDashboard] Failed to remove images for deleted property:', cleanupError.message);
+          imageCleanupFailed = true;
+        }
+      } catch (cleanupError: unknown) {
+        console.error('[AdminDashboard] Failed to remove images for deleted property:', cleanupError);
+        imageCleanupFailed = true;
+      }
+    }
+
     if (properties.length === 1 && propertyPage > 1) setPropertyPage(propertyPage - 1);
     else await loadProperties();
+    if (imageCleanupFailed) setError(copy.propertyForm.imageCleanupError);
   };
 
   const updateRole = async (target: UserRoleRow, role: AppRole) => {
@@ -381,6 +468,12 @@ export default function AdminDashboard() {
     admin: copy.administrator,
     editor: copy.editor,
     viewer: copy.viewer,
+  };
+  const propertyStatusLabels: Record<PropertyStatus, string> = {
+    'for-sale': copy.propertyForm.forSale,
+    'for-rent': copy.propertyForm.forRent,
+    sold: copy.propertyForm.sold,
+    draft: copy.propertyForm.draft,
   };
 
   return (
@@ -512,6 +605,9 @@ export default function AdminDashboard() {
                                 {copy.featured}
                               </span>
                             )}
+                            <span className="rounded-full bg-[#f0f4f3] px-2 py-0.5 font-medium text-[#5C706D]">
+                              {propertyStatusLabels[property.status]}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -628,198 +724,16 @@ export default function AdminDashboard() {
       </div>
 
       {isFormOpen && (
-        <div
-          className="fixed inset-0 z-30 flex items-start justify-center overflow-y-auto bg-[#10221f]/55 p-4 backdrop-blur-sm sm:items-center sm:p-8"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget && !isSaving) setIsFormOpen(false);
+        <PropertyEditor
+          error={error}
+          initialData={editorData(editingProperty)}
+          isEditing={editingProperty !== null}
+          isSaving={isSaving}
+          onCancel={() => {
+            if (!isSaving) setIsFormOpen(false);
           }}
-        >
-          <section aria-labelledby="property-form-title" aria-modal="true" className="my-auto w-full max-w-2xl rounded-2xl bg-white p-5 shadow-2xl sm:p-8" role="dialog">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#006655]">
-                  {copy.propertyManagement}
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold" id="property-form-title">
-                  {editingProperty ? copy.editProperty : copy.newProperty}
-                </h2>
-              </div>
-              <button
-                aria-label={copy.closeForm}
-                className="rounded-lg px-2 py-1 text-2xl leading-none text-[#71827f] hover:bg-[#f4f8f7]"
-                disabled={isSaving}
-                onClick={() => setIsFormOpen(false)}
-                type="button"
-              >
-                ×
-              </button>
-            </div>
-            <form className="mt-6 grid gap-4 sm:grid-cols-2" onSubmit={(event) => void saveProperty(event)}>
-              <label className="grid gap-1.5 text-sm font-medium sm:col-span-2">
-                {copy.propertyName}
-                <input
-                  className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655] focus:ring-2 focus:ring-[#006655]/15"
-                  maxLength={160}
-                  onChange={(event) => setForm({ ...form, title: event.target.value })}
-                  required
-                  value={form.title}
-                />
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium sm:col-span-2">
-                {copy.location}
-                <input
-                  className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655] focus:ring-2 focus:ring-[#006655]/15"
-                  maxLength={240}
-                  onChange={(event) => setForm({ ...form, location: event.target.value })}
-                  required
-                  value={form.location}
-                />
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium">
-                {copy.operationType}
-                <select
-                  className="rounded-lg border border-[#dce8e5] bg-white px-3 py-2.5 outline-none focus:border-[#006655]"
-                  onChange={(event) => {
-                    if (isPropertyType(event.target.value)) {
-                      setForm({ ...form, type: event.target.value });
-                    }
-                  }}
-                  value={form.type}
-                >
-                  <option value="sale">{copy.sale}</option>
-                  <option value="rent">{copy.rent}</option>
-                </select>
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium">
-                {copy.category}
-                <select
-                  className="rounded-lg border border-[#dce8e5] bg-white px-3 py-2.5 outline-none focus:border-[#006655]"
-                  onChange={(event) => {
-                    if (isPropertyCategory(event.target.value)) {
-                      setForm({ ...form, category: event.target.value });
-                    }
-                  }}
-                  value={form.category}
-                >
-                  {CATEGORIES.map((category) => (
-                    <option key={category} value={category}>{t.home.categories[category]}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium">
-                {copy.price}
-                <input
-                  className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
-                  min="1"
-                  onChange={(event) => setForm({ ...form, price: event.target.value })}
-                  required
-                  step="any"
-                  type="number"
-                  value={form.price}
-                />
-              </label>
-              {form.type === 'rent' && (
-                <label className="grid gap-1.5 text-sm font-medium">
-                  {copy.period}
-                  <select
-                    className="rounded-lg border border-[#dce8e5] bg-white px-3 py-2.5 outline-none focus:border-[#006655]"
-                    onChange={(event) => {
-                      if (isPricePeriod(event.target.value)) {
-                        setForm({ ...form, pricePeriod: event.target.value });
-                      }
-                    }}
-                    value={form.pricePeriod}
-                  >
-                    <option value="mo">{copy.monthly}</option>
-                    <option value="year">{copy.yearly}</option>
-                  </select>
-                </label>
-              )}
-              <label className="grid gap-1.5 text-sm font-medium">
-                {copy.beds}
-                <input
-                  className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
-                  min="0"
-                  onChange={(event) => setForm({ ...form, beds: event.target.value })}
-                  required
-                  step="any"
-                  type="number"
-                  value={form.beds}
-                />
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium">
-                {copy.baths}
-                <input
-                  className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
-                  min="0"
-                  onChange={(event) => setForm({ ...form, baths: event.target.value })}
-                  required
-                  step="any"
-                  type="number"
-                  value={form.baths}
-                />
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium">
-                {copy.area}
-                <input
-                  className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
-                  min="1"
-                  onChange={(event) => setForm({ ...form, areaSqM: event.target.value })}
-                  required
-                  step="any"
-                  type="number"
-                  value={form.areaSqM}
-                />
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium sm:col-span-2">
-                {copy.mainImageUrl}
-                <input
-                  className="rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655]"
-                  onChange={(event) => setForm({ ...form, imageUrl: event.target.value })}
-                  placeholder="https://…"
-                  required
-                  type="url"
-                  value={form.imageUrl}
-                />
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium sm:col-span-2">
-                {copy.description}
-                <textarea
-                  className="min-h-24 resize-y rounded-lg border border-[#dce8e5] px-3 py-2.5 outline-none focus:border-[#006655] focus:ring-2 focus:ring-[#006655]/15"
-                  onChange={(event) => setForm({ ...form, description: event.target.value })}
-                  rows={3}
-                  value={form.description}
-                />
-              </label>
-              <label className="flex items-center gap-3 text-sm font-medium sm:col-span-2">
-                <input
-                  checked={form.isFeatured}
-                  className="h-4 w-4 accent-[#006655]"
-                  onChange={(event) => setForm({ ...form, isFeatured: event.target.checked })}
-                  type="checkbox"
-                />
-                {copy.featuredCheckbox}
-              </label>
-              <div className="flex justify-end gap-3 border-t border-[#e9efed] pt-5 sm:col-span-2">
-                <button
-                  className="rounded-lg border border-[#dce8e5] px-4 py-2.5 text-sm font-semibold hover:bg-[#f4f8f7] disabled:opacity-50"
-                  disabled={isSaving}
-                  onClick={() => setIsFormOpen(false)}
-                  type="button"
-                >
-                  {copy.cancel}
-                </button>
-                <button
-                  className="rounded-lg bg-[#006655] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#005544] disabled:cursor-wait disabled:opacity-60"
-                  disabled={isSaving}
-                  type="submit"
-                >
-                  {isSaving ? copy.saving : editingProperty ? copy.saveChanges : copy.createProperty}
-                </button>
-              </div>
-            </form>
-          </section>
-        </div>
+          onSave={(data, files, saveAsDraft) => void saveProperty(data, files, saveAsDraft)}
+        />
       )}
     </main>
   );
