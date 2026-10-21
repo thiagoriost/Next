@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  /**
+   * Remote image sources allowed by `next/image`.
+   * Supabase access is restricted to public property-image objects.
+   */
   images: {
     remotePatterns: [
       {
@@ -11,6 +15,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "tlqxifkyskndndxgeirn.supabase.co",
+        pathname: "/storage/v1/object/public/property-images/**",
       },
     ],
   },
