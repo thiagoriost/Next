@@ -1,6 +1,6 @@
 export type PropertyType = 'sale' | 'rent';
 
-export type PropertyCategory = 'All' | 'House' | 'Apartment' | 'Villa' | 'Penthouse';
+export type PropertyCategory = 'All' | 'House' | 'Apartment' | 'Villa' | 'Penthouse' | 'Commercial';
 
 export interface Property {
   id: string;

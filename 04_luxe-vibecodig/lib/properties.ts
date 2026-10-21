@@ -56,6 +56,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
     .from('properties')
     .select('*')
     .eq('is_featured', true)
+    .in('status', ['for-sale', 'for-rent'])
     .order('id');
 
   if (error) {
@@ -108,6 +109,7 @@ export async function getMarketProperties({
     .from('properties')
     .select('*', { count: 'exact' })
     .eq('is_featured', false)
+    .in('status', ['for-sale', 'for-rent'])
     .order('id')
     .range(from, to);
 
@@ -117,7 +119,7 @@ export async function getMarketProperties({
     if (category === 'Condo') resolvedCategory = 'Apartment';
     if (category === 'Townhouse') resolvedCategory = 'House';
 
-    if (['House', 'Apartment', 'Villa', 'Penthouse'].includes(resolvedCategory)) {
+    if (['House', 'Apartment', 'Villa', 'Penthouse', 'Commercial'].includes(resolvedCategory)) {
       query = query.eq('category', resolvedCategory as Database['public']['Enums']['property_category']);
     }
   }
@@ -217,6 +219,7 @@ export async function getPropertyBySlug(slug: string): Promise<Property | null> 
     .from('properties')
     .select('*')
     .eq('slug', slug)
+    .neq('status', 'draft')
     .single();
 
   if (propError || !propertyRow) {
@@ -233,11 +236,15 @@ export async function getPropertyBySlug(slug: string): Promise<Property | null> 
 export async function getAllPropertySlugs(): Promise<string[]> {
   const { data, error } = await supabase
     .from('properties')
-    .select('slug');
+    .select('slug')
+    .neq('status', 'draft');
 
-  if (error || !data) {
-    return [];
+  if (error) {
+    console.error('[getAllPropertySlugs] Supabase error:', error.message);
+  } else if (data && data.length > 0) {
+    return data.map((property) => property.slug);
   }
 
-  return data.map((p) => p.slug);
+  const { ALL_PROPERTIES } = await import('@/data/properties');
+  return ALL_PROPERTIES.map((property) => property.slug);
 }

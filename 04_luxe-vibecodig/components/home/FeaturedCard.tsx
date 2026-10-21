@@ -12,7 +12,7 @@ interface FeaturedCardProps {
 }
 
 export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const [isFavorite, setIsFavorite] = useState(false);
 
   const toggleFavorite = (e: React.MouseEvent) => {
@@ -37,6 +37,9 @@ export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) 
 
   // Use localized period label for display (e.g. 'mo' -> 'mes' in Spanish)
   const periodDisplayText = property.pricePeriod ? t.common.perMonth : undefined;
+  const formattedArea = new Intl.NumberFormat(locale === 'es' ? 'es-ES' : 'en-US').format(
+    property.areaSqM,
+  );
 
   return (
     <Link
@@ -101,7 +104,7 @@ export default function FeaturedCard({ property, onSelect }: FeaturedCardProps) 
           </div>
           <div className="flex items-center gap-2 text-[#5C706D] text-sm">
             <span className="material-icons text-lg">square_foot</span>{' '}
-            {property.areaSqM.toLocaleString()} m²
+            {formattedArea} m²
           </div>
         </div>
       </div>

@@ -38,6 +38,8 @@ export type Database = {
           agent_image_url: string | null
           amenities: string[] | null
           amenities_es: string[] | null
+          status: Database['public']['Enums']['property_status']
+          year_built: number | null
         }
         Insert: {
           area_sq_m: number
@@ -67,6 +69,8 @@ export type Database = {
           agent_image_url?: string | null
           amenities?: string[] | null
           amenities_es?: string[] | null
+          status?: Database['public']['Enums']['property_status']
+          year_built?: number | null
         }
         Update: {
           area_sq_m?: number
@@ -96,6 +100,8 @@ export type Database = {
           agent_image_url?: string | null
           amenities?: string[] | null
           amenities_es?: string[] | null
+          status?: Database['public']['Enums']['property_status']
+          year_built?: number | null
         }
         Relationships: []
       }
@@ -137,8 +143,9 @@ export type Database = {
       app_role: 'admin' | 'editor' | 'viewer'
       price_period: 'mo' | 'year'
       property_badge_type: 'exclusive' | 'new' | 'sale' | 'rent'
-      property_category: 'House' | 'Apartment' | 'Villa' | 'Penthouse'
+      property_category: 'House' | 'Apartment' | 'Villa' | 'Penthouse' | 'Commercial'
       property_type: 'sale' | 'rent'
+      property_status: 'for-sale' | 'for-rent' | 'sold' | 'draft'
     }
     CompositeTypes: {
       [_ in never]: never
