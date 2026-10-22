@@ -28,6 +28,8 @@ function isAppRole(value: string): value is AppRole {
 const EMPTY_FORM: PropertyEditorData = {
   title: '',
   location: '',
+  lat: '',
+  lng: '',
   price: '',
   pricePeriod: 'mo',
   type: 'sale',
@@ -248,6 +250,8 @@ export default function AdminDashboard() {
     return {
       title: property.title,
       location: property.location,
+      lat: property.lat === null ? '' : String(property.lat),
+      lng: property.lng === null ? '' : String(property.lng),
       price: String(property.price),
       pricePeriod: property.price_period ?? 'mo',
       type: property.type,
@@ -307,6 +311,8 @@ export default function AdminDashboard() {
         slug: editingProperty?.slug ?? createSlug(form.title, id),
         title: form.title.trim(),
         location: form.location.trim(),
+        lat: form.lat ? Number(form.lat) : null,
+        lng: form.lng ? Number(form.lng) : null,
         price: Number(form.price),
         price_period: type === 'rent' ? form.pricePeriod : null,
         type,
@@ -370,6 +376,7 @@ export default function AdminDashboard() {
       setEditingProperty(null);
       if (!editingProperty) setPropertyPage(1);
       else await loadProperties();
+      router.refresh(); // Refresh the current route to reflect the updated state
       if (imageCleanupFailed) setError(copy.propertyForm.imageCleanupError);
     } catch (saveError) {
       console.error('[AdminDashboard] Failed to save property or upload images:', saveError);

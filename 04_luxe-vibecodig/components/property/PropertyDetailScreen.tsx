@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
 import PropertyGallery from './PropertyGallery';
@@ -20,6 +20,15 @@ export default function PropertyDetailScreen({ property }: PropertyDetailScreenP
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
   const [isMortgageModalOpen, setIsMortgageModalOpen] = useState(false);
   const [visitSubmitted, setVisitSubmitted] = useState(false);
+
+  useEffect(() => {
+    
+    console.log({property})
+    return () => {
+      
+    }
+  }, [property])
+  
 
   // Mortgage calculation state
   const downPaymentPercent = 20;

@@ -278,6 +278,8 @@ export interface Translations {
       addMore: string;
       address: string;
       addressPlaceholder: string;
+      latitude: string;
+      longitude: string;
       mapPreview: string;
       details: string;
       yearBuilt: string;

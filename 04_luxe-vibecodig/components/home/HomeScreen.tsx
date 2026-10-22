@@ -165,6 +165,7 @@ export default function HomeScreen({
 
   return (
     <div className="min-h-screen bg-[#EEF6F6] text-[#19322F] font-sans antialiased selection:bg-[#006655] selection:text-white transition-colors flex flex-col justify-between">
+      rigooooooooooooooooooo
       <div>
         {/* Navigation */}
         <Navbar

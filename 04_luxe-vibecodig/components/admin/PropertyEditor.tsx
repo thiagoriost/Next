@@ -25,6 +25,8 @@ function isPropertyStatus(value: string): value is PropertyStatus {
 export interface PropertyEditorData {
   title: string;
   location: string;
+  lat: string;
+  lng: string;
   price: string;
   pricePeriod: PricePeriod;
   type: PropertyType;
@@ -412,6 +414,16 @@ export default function PropertyEditor({
                   {copy.address}
                   <input className={`${fieldClass} mt-1.5 text-sm`} disabled={isSaving} id="property-location" maxLength={240} onChange={(event) => update('location', event.target.value)} placeholder={copy.addressPlaceholder} required value={form.location} />
                 </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <label className="block font-sf-pro text-sm font-medium text-nordic" htmlFor="property-lat">
+                    {copy.latitude}
+                    <input className={`${fieldClass} mt-1.5 text-sm`} disabled={isSaving} id="property-lat" max="90" min="-90" onChange={(event) => update('lat', event.target.value)} step="any" type="number" value={form.lat} />
+                  </label>
+                  <label className="block font-sf-pro text-sm font-medium text-nordic" htmlFor="property-lng">
+                    {copy.longitude}
+                    <input className={`${fieldClass} mt-1.5 text-sm`} disabled={isSaving} id="property-lng" max="180" min="-180" onChange={(event) => update('lng', event.target.value)} step="any" type="number" value={form.lng} />
+                  </label>
+                </div>
                 <div aria-label={copy.mapPreview} className="relative flex h-48 w-full items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-[#e5efe8]">
                   <div aria-hidden="true" className="absolute inset-0 opacity-60" style={{ backgroundImage: 'linear-gradient(32deg, transparent 46%, white 47%, white 50%, transparent 51%), linear-gradient(145deg, transparent 40%, #c4ddc4 41%, #c4ddc4 48%, transparent 49%), linear-gradient(90deg, transparent 48%, white 49%, white 52%, transparent 53%)', backgroundSize: '54px 48px, 78px 66px, 64px 58px' }} />
                   <span className="relative flex items-center gap-1 rounded bg-white/90 px-3 py-1.5 font-sf-pro text-xs font-bold text-nordic shadow-sm"><span aria-hidden="true" className="material-icons text-sm text-mosque">map</span>{copy.mapPreview}</span>

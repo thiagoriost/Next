@@ -308,6 +308,8 @@ export const es: Translations = {
       addMore: 'Añadir más',
       address: 'Dirección',
       addressPlaceholder: 'Calle, ciudad, código postal',
+      latitude: 'Latitud',
+      longitude: 'Longitud',
       mapPreview: 'Vista previa del mapa',
       details: 'Detalles',
       yearBuilt: 'Año de construcción',
