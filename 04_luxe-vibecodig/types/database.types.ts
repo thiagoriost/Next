@@ -23,6 +23,7 @@ export type Database = {
           image_url: string | null
           images: string[]
           is_featured: boolean | null
+          is_visible: boolean
           location: string
           price: number
           price_period: Database['public']['Enums']['price_period'] | null
@@ -54,6 +55,7 @@ export type Database = {
           image_url?: string | null
           images?: string[]
           is_featured?: boolean | null
+          is_visible?: boolean
           location: string
           price: number
           price_period?: Database['public']['Enums']['price_period'] | null
@@ -85,6 +87,7 @@ export type Database = {
           image_url?: string | null
           images?: string[]
           is_featured?: boolean | null
+          is_visible?: boolean
           location?: string
           price?: number
           price_period?: Database['public']['Enums']['price_period'] | null

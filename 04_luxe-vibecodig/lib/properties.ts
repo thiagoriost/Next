@@ -56,6 +56,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
     .from('properties')
     .select('*')
     .eq('is_featured', true)
+    .eq('is_visible', true)
     .in('status', ['for-sale', 'for-rent'])
     .order('id');
 
@@ -109,6 +110,7 @@ export async function getMarketProperties({
     .from('properties')
     .select('*', { count: 'exact' })
     .eq('is_featured', false)
+    .eq('is_visible', true)
     .in('status', ['for-sale', 'for-rent'])
     .order('id')
     .range(from, to);
