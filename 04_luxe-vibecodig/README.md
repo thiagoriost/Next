@@ -33,6 +33,11 @@ Add `http://localhost:3000/auth/callback` to the Supabase project's
 site's `/auth/callback` URL there as well. Provider credentials and SMS settings
 are managed by Supabase and do not belong in client-side environment variables.
 
+Authenticated browser sessions expire 8 hours after sign-in, even if Supabase
+refreshes the access token or the user reloads the page. For the same limit to be
+enforced by Supabase when refreshing tokens, set **Authentication → Sessions →
+Time-box user sessions** to 8 hours in the Supabase dashboard.
+
 ## Administrative dashboard
 
 Apply the SQL migrations in `supabase/migrations` to the Supabase project. New
