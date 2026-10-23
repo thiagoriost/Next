@@ -28,6 +28,8 @@ function isAppRole(value: string): value is AppRole {
 const EMPTY_FORM: PropertyEditorData = {
   title: '',
   location: '',
+  lat: '',
+  lng: '',
   price: '',
   pricePeriod: 'mo',
   type: 'sale',
@@ -149,6 +151,7 @@ export default function AdminDashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<PropertyRow | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [updatingVisibility, setUpdatingVisibility] = useState<string | null>(null);
   const [changingRole, setChangingRole] = useState<string | null>(null);
   const [signOutPending, setSignOutPending] = useState(false);
 
@@ -248,6 +251,8 @@ export default function AdminDashboard() {
     return {
       title: property.title,
       location: property.location,
+      lat: property.lat === null ? '' : String(property.lat),
+      lng: property.lng === null ? '' : String(property.lng),
       price: String(property.price),
       pricePeriod: property.price_period ?? 'mo',
       type: property.type,
@@ -307,6 +312,8 @@ export default function AdminDashboard() {
         slug: editingProperty?.slug ?? createSlug(form.title, id),
         title: form.title.trim(),
         location: form.location.trim(),
+        lat: form.lat ? Number(form.lat) : null,
+        lng: form.lng ? Number(form.lng) : null,
         price: Number(form.price),
         price_period: type === 'rent' ? form.pricePeriod : null,
         type,
@@ -370,6 +377,7 @@ export default function AdminDashboard() {
       setEditingProperty(null);
       if (!editingProperty) setPropertyPage(1);
       else await loadProperties();
+      router.refresh(); // Refresh the current route to reflect the updated state
       if (imageCleanupFailed) setError(copy.propertyForm.imageCleanupError);
     } catch (saveError) {
       console.error('[AdminDashboard] Failed to save property or upload images:', saveError);
@@ -426,6 +434,34 @@ export default function AdminDashboard() {
     if (properties.length === 1 && propertyPage > 1) setPropertyPage(propertyPage - 1);
     else await loadProperties();
     if (imageCleanupFailed) setError(copy.propertyForm.imageCleanupError);
+  };
+
+  const togglePropertyVisibility = async (property: PropertyRow) => {
+    setError('');
+    setUpdatingVisibility(property.id);
+
+    try {
+      const isVisible = !property.is_visible;
+      const { error: updateError } = await getSupabaseBrowserClient()
+        .from('properties')
+        .update({ is_visible: isVisible })
+        .eq('id', property.id);
+
+      if (updateError) {
+        console.error('[AdminDashboard] Failed to update property visibility:', updateError.message);
+        setError(copy.updateVisibilityError);
+        return;
+      }
+
+      setProperties((current) =>
+        current.map((item) => (item.id === property.id ? { ...item, is_visible: isVisible } : item)),
+      );
+    } catch (updateError: unknown) {
+      console.error('[AdminDashboard] Failed to update property visibility:', updateError);
+      setError(copy.updateVisibilityError);
+    } finally {
+      setUpdatingVisibility(null);
+    }
   };
 
   const updateRole = async (target: UserRoleRow, role: AppRole) => {
@@ -611,7 +647,7 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 sm:justify-end">
+                      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                         <a
                           className="rounded-lg border border-[#dce8e5] px-3 py-2 text-sm font-medium transition hover:bg-[#f4f8f7]"
                           href={`/properties/${property.slug}`}
@@ -621,6 +657,19 @@ export default function AdminDashboard() {
                           {copy.view}
                         </a>
                         <button
+                          aria-label={`${property.is_visible ? copy.hideFromHomePage : copy.showOnHomePage} ${property.title}`}
+                          className="rounded-lg border border-[#dce8e5] px-3 py-2 text-sm font-medium transition hover:bg-[#f4f8f7] disabled:cursor-wait disabled:opacity-50"
+                          disabled={updatingVisibility === property.id}
+                          onClick={() => void togglePropertyVisibility(property)}
+                          type="button"
+                        >
+                          {updatingVisibility === property.id
+                            ? copy.updatingVisibility
+                            : property.is_visible
+                              ? copy.hideFromHomePage
+                              : copy.showOnHomePage}
+                        </button>
+                        <button
                           aria-label={`${copy.edit} ${property.title}`}
                           className="rounded-lg border border-[#dce8e5] px-3 py-2 text-sm font-medium transition hover:bg-[#f4f8f7]"
                           onClick={() => openEditForm(property)}
@@ -628,14 +677,14 @@ export default function AdminDashboard() {
                         >
                           {copy.edit}
                         </button>
-                        <button
+                        {/* <button
                           aria-label={`${copy.delete} ${property.title}`}
                           className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50"
                           onClick={() => void deleteProperty(property)}
                           type="button"
                         >
                           {copy.delete}
-                        </button>
+                        </button> */}
                       </div>
                     </article>
                   ))}
@@ -729,6 +778,7 @@ export default function AdminDashboard() {
           initialData={editorData(editingProperty)}
           isEditing={editingProperty !== null}
           isSaving={isSaving}
+          key={editingProperty?.id ?? 'new-property'}
           onCancel={() => {
             if (!isSaving) setIsFormOpen(false);
           }}

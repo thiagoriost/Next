@@ -195,6 +195,9 @@ export interface Translations {
     view: string;
     edit: string;
     delete: string;
+    hideFromHomePage: string;
+    showOnHomePage: string;
+    updatingVisibility: string;
     users: string;
     registeredAccounts: string;
     loadingUsers: string;
@@ -214,6 +217,7 @@ export interface Translations {
     savePropertyError: string;
     deletePropertyError: string;
     updateRoleError: string;
+    updateVisibilityError: string;
     signOutError: string;
     signOut: string;
     propertyManagement: string;
@@ -278,6 +282,8 @@ export interface Translations {
       addMore: string;
       address: string;
       addressPlaceholder: string;
+      latitude: string;
+      longitude: string;
       mapPreview: string;
       details: string;
       yearBuilt: string;
